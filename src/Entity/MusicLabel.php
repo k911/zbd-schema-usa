@@ -43,10 +43,16 @@ class MusicLabel
      */
     private $releases;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\MusicLabelStreamingServiceContract", mappedBy="musicLabel")
+     */
+    private $musicLabelStreamingServiceContracts;
+
     public function __construct()
     {
         $this->musicLabelArtistContracts = new ArrayCollection();
         $this->releases = new ArrayCollection();
+        $this->musicLabelStreamingServiceContracts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -146,6 +152,37 @@ class MusicLabel
             // set the owning side to null (unless already changed)
             if ($release->getMusicLabel() === $this) {
                 $release->setMusicLabel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|MusicLabelStreamingServiceContract[]
+     */
+    public function getMusicLabelStreamingServiceContracts(): Collection
+    {
+        return $this->musicLabelStreamingServiceContracts;
+    }
+
+    public function addMusicLabelStreamingServiceContract(MusicLabelStreamingServiceContract $musicLabelStreamingServiceContract): self
+    {
+        if (!$this->musicLabelStreamingServiceContracts->contains($musicLabelStreamingServiceContract)) {
+            $this->musicLabelStreamingServiceContracts[] = $musicLabelStreamingServiceContract;
+            $musicLabelStreamingServiceContract->setMusicLabel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMusicLabelStreamingServiceContract(MusicLabelStreamingServiceContract $musicLabelStreamingServiceContract): self
+    {
+        if ($this->musicLabelStreamingServiceContracts->contains($musicLabelStreamingServiceContract)) {
+            $this->musicLabelStreamingServiceContracts->removeElement($musicLabelStreamingServiceContract);
+            // set the owning side to null (unless already changed)
+            if ($musicLabelStreamingServiceContract->getMusicLabel() === $this) {
+                $musicLabelStreamingServiceContract->setMusicLabel(null);
             }
         }
 
