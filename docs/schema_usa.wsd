@@ -1,0 +1,192 @@
+@startuml zbd_schema_usa
+
+' UPC - Int(14) - Universal Product Code
+' ISRC - Char(12) - International Standard Recording Code
+' Second - Int
+entity Track {
+    *id: Uuid4
+    *releaseId: Uuid4
+    --
+    *title: Varchar
+    *isrc: ISRC
+    *duration: Second 
+    *edit: Enum["original","radio","remix","cover","preview","instrumental"]
+}
+
+entity StreamingService {
+    *id: Uuid4
+    --
+    *name: Varchar
+}
+
+entity TrackStream {
+    *id: Uuid4
+    *trackId: Uuid4
+    *streamingServiceId: Uuid4
+    customerId: Uuid4
+    --
+    *timestamp: Date
+    *clientCountry: ISOCountryCode
+    clinetIp: Varchar
+    bandwith: Int
+    quality: Enum("flac","acc-128","mp3-320","waw")
+    duration: Second
+}
+
+' USD - Int - number of cents (¢)
+
+entity Release {
+    *id: Uuid4
+    *musicLabelId: Uuid4
+    --
+    *upc: UPC
+    *name: Varchar
+    *type: Enum["single","album","digital"]
+    *originalPrice: USD
+    cline: Varchar
+    *pline: Varchar
+}
+
+entity MusicLabelStreamingServiceContract {
+    *musicLabelId: Uuid4
+    *streamingService: Uuid4
+    --
+    *startDate: Date
+    endDate: Date
+}
+
+entity MusicLabelArtistContract {
+    *musicLabelId: Uuid4
+    *artistId: Uuid4
+    --
+    *startDate: Date
+    endDate: Date
+}
+
+entity MusicLabel {
+    *id: Uuid4
+    --
+    *name: Varchar
+    creationYear: Year
+}
+
+' ISOISOCountryCode - ISO 3166-1 alfa-3 (e.g. Poland - POL)
+
+entity Country {
+    *id: Uuid4
+    --
+    *name: Varchar
+    *isoCode: ISOCountryCode
+}
+
+entity ReleaseStreamingRights {
+    *releaseId: Uuid4
+    *countryId: Uuid4
+    --
+}
+
+entity Transaction {
+    *id: Uuid4
+    ---
+    *provider: Enum("mastercard","visa","paypal","payu")
+    *status: Enum("new","completed","cancelled","in-progress")
+    *createdAt: ISODateTime
+    updatedAt: ISODateTime
+    finishedAt: ISODateTime
+}
+
+entity ReleaseOrder {
+    *id: Uuid4
+    *releaseId: Uuid4
+    *transationId: Uuid4
+    customerId: Uuid4
+    --
+    *type: Enum("digital","streaming","e-shop","shop")
+    *price: USD
+    *placedAt: ISODateTime
+}
+
+entity ReleaseLike {
+    *customerId: Uuid4
+    *releaseId: Uuid4
+    ---
+    customerIp: Varchar
+    *addedAt: ISODateTime
+}
+
+entity TrackLike {
+    *customerId: Uuid4
+    *trackId: Uuid4
+    ---
+    *addedFrom: Enum("facebook","streaming-service","player","android-app","ios-app","other")
+    customerIp: Varchar
+    *addedAt: ISODateTime
+}
+
+entity TrackArtist {
+    *trackId: Uuid4
+    *artistId: Uuid4
+    --
+}
+
+entity Artist {
+    *id: Uuid4
+    --
+    *name: Varchar
+}
+
+entity Customer {
+    *id: Uuid4
+    --
+    *name: Varchar
+    *email: Varchar
+    *country: ISOCountryCode
+    *passwordHash: Varchar
+    *joinedAt: ISODateTime
+    phone: Varchar
+    city: Varchar
+    adress: Varchar
+}
+
+
+
+' Track 1..n <-> 1..n Artist
+Track "1" ||--|{ "1..n" TrackArtist:has >
+Artist "1" ||--|{ "1..n" TrackArtist:has >
+
+Release "1" ||--|{ "1..n" Track:has >
+
+Release "1" ||--o{ "0..n" ReleaseLike:< added to
+Track "1" ||--o{ "0..n" TrackLike:< added to
+
+Customer "1" ||--o{ "0..n" TrackLike: can add >
+Customer "1" ||--o{ "0..n" ReleaseLike: can add >
+
+MusicLabel "1" ||-o{ "0..n" Release:owns >
+
+' Release 1..n <-> 1..n Country (streaming rights)
+Release "1" ||--|{ "1..n" ReleaseStreamingRights
+Country "1" ||--|{ "1..n" ReleaseStreamingRights
+
+Release "1" ||--o{ "0..n" ReleaseOrder:< placed to buy
+
+Transaction "1" ||--|{ "1..n" ReleaseOrder:consists of >
+
+ReleaseOrder "0..n" }o--o| "0..1" Customer:could be created by >
+
+Track "1" ||--o{ "0..n" TrackStream:listened >
+TrackStream "0..n" }o--|| "1" StreamingService:streamed from >
+TrackStream "0..n" }o--o| "0..1" Customer:streamed for >
+
+
+Artist "1" ||--o{ "0..n" MusicLabelArtistContract:signs >
+MusicLabel "1" ||--o{ "0..n" MusicLabelArtistContract:signs >
+
+
+StreamingService "1" ||--o{ "0..n" MusicLabelStreamingServiceContract:signs >
+MusicLabel "1" ||--o{ "0..n" MusicLabelStreamingServiceContract:signs >
+
+@enduml
+
+
+
