@@ -64,10 +64,16 @@ class Release
      */
     private $tracks;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ReleaseLike", mappedBy="musicRelease")
+     */
+    private $releaseLikes;
+
     public function __construct()
     {
         $this->streamingRights = new ArrayCollection();
         $this->tracks = new ArrayCollection();
+        $this->releaseLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -210,6 +216,37 @@ class Release
             // set the owning side to null (unless already changed)
             if ($track->getMusicRelease() === $this) {
                 $track->setMusicRelease(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ReleaseLike[]
+     */
+    public function getReleaseLikes(): Collection
+    {
+        return $this->releaseLikes;
+    }
+
+    public function addReleaseLike(ReleaseLike $releaseLike): self
+    {
+        if (!$this->releaseLikes->contains($releaseLike)) {
+            $this->releaseLikes[] = $releaseLike;
+            $releaseLike->setMusicRelease($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReleaseLike(ReleaseLike $releaseLike): self
+    {
+        if ($this->releaseLikes->contains($releaseLike)) {
+            $this->releaseLikes->removeElement($releaseLike);
+            // set the owning side to null (unless already changed)
+            if ($releaseLike->getMusicRelease() === $this) {
+                $releaseLike->setMusicRelease(null);
             }
         }
 

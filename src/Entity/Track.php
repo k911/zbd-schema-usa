@@ -49,9 +49,15 @@ class Track
      */
     private $artists;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TrackLike", mappedBy="track")
+     */
+    private $trackLikes;
+
     public function __construct()
     {
         $this->artists = new ArrayCollection();
+        $this->trackLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -140,6 +146,37 @@ class Track
     {
         if ($this->artists->contains($artist)) {
             $this->artists->removeElement($artist);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TrackLike[]
+     */
+    public function getTrackLikes(): Collection
+    {
+        return $this->trackLikes;
+    }
+
+    public function addTrackLike(TrackLike $trackLike): self
+    {
+        if (!$this->trackLikes->contains($trackLike)) {
+            $this->trackLikes[] = $trackLike;
+            $trackLike->setTrack($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTrackLike(TrackLike $trackLike): self
+    {
+        if ($this->trackLikes->contains($trackLike)) {
+            $this->trackLikes->removeElement($trackLike);
+            // set the owning side to null (unless already changed)
+            if ($trackLike->getTrack() === $this) {
+                $trackLike->setTrack(null);
+            }
         }
 
         return $this;
