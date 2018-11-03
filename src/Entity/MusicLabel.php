@@ -38,9 +38,15 @@ class MusicLabel
      */
     private $musicLabelArtistContracts;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Release", mappedBy="musicLabel")
+     */
+    private $releases;
+
     public function __construct()
     {
         $this->musicLabelArtistContracts = new ArrayCollection();
+        $this->releases = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,6 +115,37 @@ class MusicLabel
             // set the owning side to null (unless already changed)
             if ($musicLabelArtistContract->getMusicLabel() === $this) {
                 $musicLabelArtistContract->setMusicLabel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Release[]
+     */
+    public function getReleases(): Collection
+    {
+        return $this->releases;
+    }
+
+    public function addRelease(Release $release): self
+    {
+        if (!$this->releases->contains($release)) {
+            $this->releases[] = $release;
+            $release->setMusicLabel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRelease(Release $release): self
+    {
+        if ($this->releases->contains($release)) {
+            $this->releases->removeElement($release);
+            // set the owning side to null (unless already changed)
+            if ($release->getMusicLabel() === $this) {
+                $release->setMusicLabel(null);
             }
         }
 
