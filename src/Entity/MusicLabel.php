@@ -26,7 +26,7 @@ class MusicLabel
     /**
      * @ORM\Column(type="date_immutable")
      */
-    private $creationYear;
+    private $creationDate;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -72,14 +72,14 @@ class MusicLabel
         return $this;
     }
 
-    public function getCreationYear(): ?\DateTimeImmutable
+    public function getCreationDate(): ?\DateTimeImmutable
     {
-        return $this->creationYear;
+        return $this->creationDate;
     }
 
-    public function setCreationYear(\DateTimeImmutable $creationYear): self
+    public function setCreationDate(\DateTimeImmutable $creationDate): self
     {
-        $this->creationYear = $creationYear;
+        $this->creationDate = $creationDate;
 
         return $this;
     }

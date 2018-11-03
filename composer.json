@@ -6,6 +6,8 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
+        "fzaninotto/faker": "^1.8",
+        "hautelook/alice-bundle": "^2.3",
         "k911/swoole-bundle": "^0.4.1",
         "ramsey/uuid": "^3.8",
         "ramsey/uuid-doctrine": "^1.5",
@@ -14,6 +16,7 @@
         "symfony/framework-bundle": "*",
         "symfony/maker-bundle": "^1.8",
         "symfony/orm-pack": "^1.0",
+        "symfony/var-dumper": "*",
         "symfony/yaml": "*"
     },
     "require-dev": {

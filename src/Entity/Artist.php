@@ -24,14 +24,14 @@ class Artist
     private $name;
 
     /**
-     * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @ORM\Column(type="date_immutable")
      */
-    private $age;
+    private $birthDate;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $sex;
+    private $gender;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\MusicLabelArtistContract", mappedBy="artist")
@@ -60,26 +60,26 @@ class Artist
         return $this;
     }
 
-    public function getAge(): ?int
+    public function getBirthDate(): ?\DateTimeImmutable
     {
-        return $this->age;
+        return $this->birthDate;
     }
 
-    public function setAge(int $age): self
+    public function setBirthDate(\DateTimeImmutable $birthDate): self
     {
-        $this->age = $age;
+        $this->birthDate = $birthDate;
 
         return $this;
     }
 
-    public function getSex(): ?string
+    public function getGender(): ?string
     {
-        return $this->sex;
+        return $this->gender;
     }
 
-    public function setSex(string $sex): self
+    public function setGender(string $gender): self
     {
-        $this->sex = $sex;
+        $this->gender = $gender;
 
         return $this;
     }
