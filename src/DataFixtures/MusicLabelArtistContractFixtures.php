@@ -12,8 +12,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 100;
-    public const CHUNK_SIZE = 10;
+    public const MAX_COUNT = 10000;
+    public const CHUNK_SIZE = 1000;
     public const MAX_DIFFERENT_RANGE_TRIES = 3;
     public const MAX_CONTRACTS_PER_PAIR = 3;
 

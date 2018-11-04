@@ -1,0 +1,69 @@
+@startuml hurtownia
+
+entity Time {
+    *id: Id
+    --
+    *date: Date
+    *weekday: Enum("monday","tuesday","wednesday","thursday","friday","staturday","sunday")
+    *weekend: Bool
+    *quarter: Enum("I","II","III","IV")
+    *year: Int
+}
+
+' Tabela faktów
+entity SalesHistory {
+    *id: Id
+    *customerId: Id
+    *musicLabelId: Id
+    *orderDetailsId: Id
+    *timeId: Id
+    *releaseId: Id
+    --
+    *quantity: Int
+    *price: USD (cents)
+}
+
+entity Customer {
+    *id: Id
+    --
+    *name: Varchar
+    *age: Int
+    *country: ISOCountryCode
+    *city: Varchar
+}
+
+entity OrderDetails {
+    *id: Id
+    --
+    *type: Enum("digital","stream","e-shop","shop")
+    customerIp: Varchar
+    streamingService: Varchar
+    transactionProvider: Enum("mastercard","visa","paypal","payu")
+
+}
+
+entity MusicLabel {
+    *id: Id
+    --
+    *name: Varchar
+    *creationYear: Int
+}
+
+
+entity Release {
+    *id: Id
+    --
+    *type: Enum("single","digital","stream")
+    *name: Varchar
+    *originalPrice: Int
+    *releaseDate: Int
+    *tracksNumber: Int
+}
+
+Release "1" ||--|{ "1..n" SalesHistory:>
+MusicLabel "1" ||--|{ "1..n" SalesHistory:>
+OrderDetails "1" ||--|{ "1..n" SalesHistory:>
+Customer "1" ||--|{ "1..n" SalesHistory:>
+Time "1" ||--|{ "1..n" SalesHistory:>
+
+@enduml

@@ -8,8 +8,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class ArtistFixtures extends Fixture
 {
-    public const COUNT = 100;
-    public const CHUNK_SIZE = 10;
+    public const COUNT = 10000;
+    public const CHUNK_SIZE = 1000;
     private $artistFactory;
 
     public function __construct(ArtistFactory $artistFactory)
