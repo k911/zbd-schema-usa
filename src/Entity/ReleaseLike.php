@@ -19,6 +19,16 @@ class ReleaseLike
     /**
      * @ORM\Column(type="string", length=255)
      */
+    private $source;
+
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $addedAt;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
     private $customerIp;
 
     /**
@@ -70,6 +80,30 @@ class ReleaseLike
     public function setMusicRelease(?Release $musicRelease): self
     {
         $this->musicRelease = $musicRelease;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): self
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    public function getAddedAt(): ?\DateTimeImmutable
+    {
+        return $this->addedAt;
+    }
+
+    public function setAddedAt(\DateTimeImmutable $addedAt): self
+    {
+        $this->addedAt = $addedAt;
 
         return $this;
     }

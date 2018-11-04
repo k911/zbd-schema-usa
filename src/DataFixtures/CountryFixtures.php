@@ -14,6 +14,7 @@ class CountryFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $counter = 1;
         foreach (\array_chunk(self::ISO_COUNTRIES, 10) as $chunk) {
             foreach ($chunk as ['name' => $name,
                      'alpha-3' => $code]) {
@@ -21,6 +22,8 @@ class CountryFixtures extends Fixture
                 $country->setName($name);
                 $country->setIsoCode($code);
                 $manager->persist($country);
+                $this->addReference(\sprintf('country-%d', $counter), $country);
+                ++$counter;
             }
             $manager->flush();
         }

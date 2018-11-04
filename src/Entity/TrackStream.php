@@ -54,6 +54,11 @@ class TrackStream
      */
     private $endedAt;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $customerIp;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,6 +144,18 @@ class TrackStream
     public function setEndedAt(\DateTimeImmutable $endedAt): self
     {
         $this->endedAt = $endedAt;
+
+        return $this;
+    }
+
+    public function getCustomerIp(): ?string
+    {
+        return $this->customerIp;
+    }
+
+    public function setCustomerIp(string $customerIp): self
+    {
+        $this->customerIp = $customerIp;
 
         return $this;
     }

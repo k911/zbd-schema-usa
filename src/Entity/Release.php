@@ -70,6 +70,11 @@ class Release
      */
     private $releaseLikes;
 
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $releasedAt;
+
     public function __construct()
     {
         $this->streamingRights = new ArrayCollection();
@@ -250,6 +255,18 @@ class Release
                 $releaseLike->setMusicRelease(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getReleasedAt(): ?\DateTimeImmutable
+    {
+        return $this->releasedAt;
+    }
+
+    public function setReleasedAt(\DateTimeImmutable $releasedAt): self
+    {
+        $this->releasedAt = $releasedAt;
 
         return $this;
     }

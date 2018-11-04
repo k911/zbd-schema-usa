@@ -9,6 +9,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 class CustomerFixtures extends Fixture
 {
     public const COUNT = 100;
+    public const CHUNK_SIZE = 10;
     private $factory;
 
     public function __construct(CustomerFactory $customerFactory)
@@ -18,10 +19,16 @@ class CustomerFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $chunkCounter = 0;
         for ($i = 1; $i <= self::COUNT; ++$i) {
             $customer = $this->factory->create();
             $manager->persist($customer);
-//            $this->addReference(\sprintf('customer-%d', $i), $customer);
+            $this->addReference(\sprintf('customer-%d', $i), $customer);
+            ++$chunkCounter;
+            if ($chunkCounter === self::CHUNK_SIZE) {
+                $chunkCounter = 0;
+                $manager->flush();
+            }
         }
 
         $manager->flush();

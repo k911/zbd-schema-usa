@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -89,5 +90,18 @@ class MusicLabelStreamingServiceContract
         $this->streamingService = $streamingService;
 
         return $this;
+    }
+
+    public function validBetween(DateTimeImmutable $startDate, DateTimeImmutable $endDate = null): bool
+    {
+        $now = new DateTimeImmutable('now');
+        $endSelf = $this->endDate ?? $now;
+        $endDate = $endDate ?? $now;
+
+        if ($endSelf < $this->startDate || $endDate < $startDate) {
+            throw new \OutOfRangeException('End dates must be after start dates.');
+        }
+
+        return ($this->startDate <= $endDate) && ($endSelf >= $startDate);
     }
 }

@@ -9,7 +9,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 class StreamingServiceFixtures extends Fixture
 {
     // https://en.wikipedia.org/wiki/Comparison_of_on-demand_music_streaming_services
-    private const STREAMING_SERVICES = [
+    public const STREAMING_SERVICES = [
         ['name' => 'Spotify'],
         ['name' => 'Apple Music'],
         ['name' => 'Deezer'],

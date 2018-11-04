@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -43,24 +44,24 @@ class MusicLabelArtistContract
         return $this->id;
     }
 
-    public function getStartDate(): ?\DateTimeImmutable
+    public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
     }
 
-    public function setStartDate(\DateTimeImmutable $startDate): self
+    public function setStartDate(DateTimeImmutable $startDate): self
     {
         $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getEndDate(): ?\DateTimeImmutable
+    public function getEndDate(): ?DateTimeImmutable
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTimeImmutable $endDate): self
+    public function setEndDate(?DateTimeImmutable $endDate): self
     {
         $this->endDate = $endDate;
 
@@ -89,5 +90,18 @@ class MusicLabelArtistContract
         $this->artist = $artist;
 
         return $this;
+    }
+
+    public function validBetween(DateTimeImmutable $startDate, DateTimeImmutable $endDate = null): bool
+    {
+        $now = new DateTimeImmutable('now');
+        $endSelf = $this->endDate ?? $now;
+        $endDate = $endDate ?? $now;
+
+        if ($endSelf < $this->startDate || $endDate < $startDate) {
+            throw new \OutOfRangeException('End dates must be after start dates.');
+        }
+
+        return ($this->startDate <= $endDate) && ($endSelf >= $startDate);
     }
 }

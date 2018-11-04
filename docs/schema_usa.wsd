@@ -4,8 +4,8 @@
 ' ISRC - Char(12) - International Standard Recording Code
 ' Second - Int
 entity Track {
-    *id: Uuid4
-    *releaseId: Uuid4
+    *id: Id
+    *releaseId: Id
     --
     *title: Varchar
     *isrc: ISRC
@@ -14,92 +14,97 @@ entity Track {
 }
 
 entity StreamingService {
-    *id: Uuid4
+    *id: Id
     --
     *name: Varchar
+    *url: Varchar
 }
 
 entity TrackStream {
-    *id: Uuid4
-    *trackId: Uuid4
-    *streamingServiceId: Uuid4
-    customerId: Uuid4
+    *id: Id
+    *trackId: Id
+    *streamingServiceId: Id
+    customerId: Id
     --
-    *timestamp: Date
-    *clientCountry: ISOCountryCode
-    clinetIp: Varchar
-    bandwith: Int
-    quality: Enum("flac","acc-128","mp3-320","waw")
-    duration: Second
+    *startedAt: Date
+    *customerIp: Varchar
+    *bandwith: Int
+    *quality: Enum("flac","acc-128","mp3-320","waw")
+    endedAt: Date
 }
 
 ' USD - Int - number of cents (¢)
 
 entity Release {
-    *id: Uuid4
-    *musicLabelId: Uuid4
+    *id: Id
+    *musicLabelId: Id
     --
     *upc: UPC
     *name: Varchar
     *type: Enum["single","album","digital"]
     *originalPrice: USD
-    cline: Varchar
+    *releaseDate: Date
+    *cline: Varchar
     *pline: Varchar
 }
 
 entity MusicLabelStreamingServiceContract {
-    *musicLabelId: Uuid4
-    *streamingService: Uuid4
+    *id: Id
+    *musicLabelId: Id
+    *streamingService: Id
     --
     *startDate: Date
     endDate: Date
 }
 
 entity MusicLabelArtistContract {
-    *musicLabelId: Uuid4
-    *artistId: Uuid4
+    *id: Id
+    *musicLabelId: Id
+    *artistId: Id
     --
     *startDate: Date
     endDate: Date
 }
 
 entity MusicLabel {
-    *id: Uuid4
+    *id: Id
     --
     *name: Varchar
-    creationYear: Year
+    *creationDate: Year
+    *creator: Varchar
 }
 
 ' ISOISOCountryCode - ISO 3166-1 alfa-3 (e.g. Poland - POL)
 
 entity Country {
-    *id: Uuid4
+    *id: Id
     --
     *name: Varchar
     *isoCode: ISOCountryCode
 }
 
 entity ReleaseStreamingRights {
-    *releaseId: Uuid4
-    *countryId: Uuid4
+    *releaseId: Id
+    *countryId: Id
     --
 }
 
 entity Transaction {
-    *id: Uuid4
+    *id: Id
+    *customerId: Id
     ---
     *provider: Enum("mastercard","visa","paypal","payu")
     *status: Enum("new","completed","cancelled","in-progress")
     *createdAt: ISODateTime
+    customerIp: Varchar
     updatedAt: ISODateTime
     finishedAt: ISODateTime
 }
 
 entity ReleaseOrder {
-    *id: Uuid4
-    *releaseId: Uuid4
-    *transationId: Uuid4
-    customerId: Uuid4
+    *id: Id
+    *releaseId: Id
+    *transationId: Id
     --
     *type: Enum("digital","streaming","e-shop","shop")
     *price: USD
@@ -107,36 +112,41 @@ entity ReleaseOrder {
 }
 
 entity ReleaseLike {
-    *customerId: Uuid4
-    *releaseId: Uuid4
+    *id: Id
+    *customerId: Id
+    *releaseId: Id
     ---
+    *source: Enum("facebook","streaming-service","player","android-app","ios-app","other")
     customerIp: Varchar
     *addedAt: ISODateTime
 }
 
 entity TrackLike {
-    *customerId: Uuid4
-    *trackId: Uuid4
+    *id: Id
+    *customerId: Id
+    *trackId: Id
     ---
-    *addedFrom: Enum("facebook","streaming-service","player","android-app","ios-app","other")
+    *source: Enum("facebook","streaming-service","player","android-app","ios-app","other")
     customerIp: Varchar
     *addedAt: ISODateTime
 }
 
 entity TrackArtist {
-    *trackId: Uuid4
-    *artistId: Uuid4
+    *trackId: Id
+    *artistId: Id
     --
 }
 
 entity Artist {
-    *id: Uuid4
+    *id: Id
     --
     *name: Varchar
+    birth_date: Date
+    gender: Enum("male","female")
 }
 
 entity Customer {
-    *id: Uuid4
+    *id: Id
     --
     *name: Varchar
     *email: Varchar
@@ -172,7 +182,7 @@ Release "1" ||--o{ "0..n" ReleaseOrder:< placed to buy
 
 Transaction "1" ||--|{ "1..n" ReleaseOrder:consists of >
 
-ReleaseOrder "0..n" }o--o| "0..1" Customer:could be created by >
+Customer "0..1" |o--o{ "0..n" Transaction:can start >
 
 Track "1" ||--o{ "0..n" TrackStream:listened >
 TrackStream "0..n" }o--|| "1" StreamingService:streamed from >
