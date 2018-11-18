@@ -88,9 +88,9 @@ Release "1" ||--|{ "1..n" Sales:>
 MusicLabel "1" ||--|{ "1..n" Sales:>
 ArtistGroup "1" ||--|{ "1..n" Sales:>
 CustomerType "1" ||--|{ "1..n" Sales:>
-Transaction "1" ||--|{ "1..n" Sales:>
-Date "1" ||--|{ "1..n" Sales:>
-StreamingService "0..1" |o--|{ "1..n" Sales:>
+Sales "1..n" }|--|| "1" Transaction:>
+Sales "1..n" }|--|| "1" Date:>
+Sales "1..n" }|--o| "0..1" StreamingService:>
 
 entity Streaming {
     *id: Id
@@ -132,8 +132,8 @@ Popularity "1..n" }|--|| "1" CustomerType:>
 Popularity "1..n" }|--|| "1" Release:>
 Popularity "1..n" }|--|| "1" Date:>
 Popularity "1..n" }|--|| "1" MusicLabel:>
-Popularity "1..n" }|--o| "0..1" ArtistGroup:>
-Popularity "1..n" }|--o| "0..1" Track:>
-Popularity "1..n" }|--o| "0..1" StreamingService:>
+ArtistGroup "0..1" |o--|{ "1..n" Popularity:>
+Track "0..1" |o--|{ "1..n" Popularity:>
+StreamingService "0..1" |o--|{ "1..n" Popularity:>
 
 @enduml
