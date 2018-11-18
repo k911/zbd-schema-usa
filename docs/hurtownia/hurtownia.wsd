@@ -100,6 +100,7 @@ entity Streaming {
     *releaseId: Id
     *dateId: Id
     *musicLabelId: Id
+    *streamingServiceId: Id
     --
     *duration: Int
     *quality: Enum("flac","acc-128","mp3-320","waw")
@@ -111,6 +112,7 @@ Streaming "1..n" }|--|| "1" Track:>
 Release "1" ||--|{ "1..n" Streaming:>
 Date "1" ||--|{ "1..n" Streaming:>
 MusicLabel "1" ||--|{ "1..n" Streaming:>
+StreamingService "1" ||--|{ "1..n" Streaming:>
 
 entity Popularity {
     *id: Id
