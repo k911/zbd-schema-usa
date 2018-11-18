@@ -1,6 +1,6 @@
 @startuml hurtownia
 
-entity Time {
+entity Date {
     *id: Id
     --
     *date: Date
@@ -10,60 +10,128 @@ entity Time {
     *year: Int
 }
 
-' Tabela faktów
-entity SalesHistory {
-    *id: Id
-    *customerId: Id
-    *musicLabelId: Id
-    *orderDetailsId: Id
-    *timeId: Id
-    *releaseId: Id
-    --
-    *quantity: Int
-    *price: USD (cents)
-}
-
-entity Customer {
+entity CustomerType {
     *id: Id
     --
+    *ageGroup: Enum("0-13", "14-18", "18-30", "30-39", "40-49", "50-64", "65-79", "80-")
+    *yearsAsCustomer: Enum("0-1", "1-2", "3-4", "5-7", "8-10","11-")
     *name: Varchar
-    *age: Int
-    *country: ISOCountryCode
     *city: Varchar
+    *country: ISOCountryCode
 }
 
-entity OrderDetails {
+entity Transaction {
     *id: Id
     --
     *type: Enum("digital","stream","e-shop","shop")
-    customerIp: Varchar
-    streamingService: Varchar
-    transactionProvider: Enum("mastercard","visa","paypal","payu")
+    *provider: Enum("mastercard","visa","paypal","payu")
+    *customerIpFistOctet: Int
+}
 
+entity StreamingService {
+    *id: Id
+    --
+    *name: Varchar
+    *monthsOnTheMarket: Enum("0-1","1-2","3-5","6-9","10-16","17-24","25-48","49-")
 }
 
 entity MusicLabel {
     *id: Id
     --
     *name: Varchar
-    *creationYear: Int
+    *yearsOnTheMarket: Enum("0-1", "1-3", "4-10", "11-20", "21-")
 }
 
+entity ArtistGroup {
+    *id: Id
+    --
+    *artists: Varchar
+    *count: Int
+}
+
+entity Track {
+    *id: Id
+    --
+    *title: Varchar
+    *edit: Enum("original","radio","remix","cover","preview","instrumental")
+    *isrc: ISRC
+    *duration: Enum("0-10","11-30","31-60","61-120","121-300","301-600","600-3600","3601-7200","7200-")
+}
 
 entity Release {
     *id: Id
     --
     *type: Enum("single","digital","stream")
+    *upc: Bigint(20)
     *name: Varchar
     *originalPrice: Int
-    *releaseDate: Int
-    *tracksNumber: Int
+    *monthsOnTheMarket: Enum("0-1","1-2","3-5","6-9","10-16","17-24","25-48","49-")
+    *tracksCount: Int
 }
 
-Release "1" ||--|{ "1..n" SalesHistory:>
-MusicLabel "1" ||--|{ "1..n" SalesHistory:>
-OrderDetails "1" ||--|{ "1..n" SalesHistory:>
-Customer "1" ||--|{ "1..n" SalesHistory:>
-Time "1" ||--|{ "1..n" SalesHistory:>
+entity Sales {
+    *id: Id
+    *customerTypeId: Id
+    *musicLabelId: Id
+    *transactionId: Id
+    *artistGroupId: Id
+    *dateId: Id
+    *releaseId: Id
+    streamingService: Id
+    --
+    fromStream: Bool
+    *quantity: Int
+    *totalPrice: USD
+}
+
+Release "1" ||--|{ "1..n" Sales:>
+MusicLabel "1" ||--|{ "1..n" Sales:>
+ArtistGroup "1" ||--|{ "1..n" Sales:>
+CustomerType "1" ||--|{ "1..n" Sales:>
+Transaction "1" ||--|{ "1..n" Sales:>
+Date "1" ||--|{ "1..n" Sales:>
+StreamingService "0..1" |o--|{ "1..n" Sales:>
+
+entity Streaming {
+    *id: Id
+    *customerTypeId: Id
+    *artistGroupId: Id
+    *trackId: Id
+    *releaseId: Id
+    *dateId: Id
+    *musicLabelId: Id
+    --
+    *duration: Int
+    *quality: Enum("flac","acc-128","mp3-320","waw")
+}
+
+Streaming "1..n" }|--|| "1" CustomerType:>
+Streaming "1..n" }|--|| "1" ArtistGroup:>
+Streaming "1..n" }|--|| "1" Track:>
+Release "1" ||--|{ "1..n" Streaming:>
+Date "1" ||--|{ "1..n" Streaming:>
+MusicLabel "1" ||--|{ "1..n" Streaming:>
+
+entity Popularity {
+    *id: Id
+    *customerTypeId: Id
+    *releaseId: Id
+    *dateId: Id
+    *musicLabelId: Id
+    artistGroupId: Id
+    trackId: Id
+    streamingService: Id
+    --
+    type: Enum["release","track"]
+    *source: Enum("facebook","streaming-service","player","android-app","ios-app","other")
+}
+
+Popularity "1..n" }|--|| "1" CustomerType:>
+Popularity "1..n" }|--|| "1" Release:>
+Popularity "1..n" }|--|| "1" Date:>
+Popularity "1..n" }|--|| "1" MusicLabel:>
+Popularity "1..n" }|--o| "0..1" ArtistGroup:>
+Popularity "1..n" }|--o| "0..1" Track:>
+Popularity "1..n" }|--o| "0..1" StreamingService:>
 
 @enduml
