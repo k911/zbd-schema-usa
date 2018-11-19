@@ -26,13 +26,7 @@ final class ReleaseLikeFactory
         $releaseLike = new ReleaseLike();
         $releaseLike->setMusicRelease($release);
         $releaseLike->setCustomer($customer);
-        $releaseLike->setSource($this->faker->randomElement([
-            'facebook',
-            'instagram',
-            'website',
-            'artist-page',
-            'streaming-service',
-        ]));
+        $releaseLike->setSource($this->faker->randomElement(ReleaseLike::RELEASE_LIKE_TYPES));
         $releaseLike->setAddedAt(\DateTimeImmutable::createFromMutable(
             $this->faker->dateTimeThisDecade
         ));

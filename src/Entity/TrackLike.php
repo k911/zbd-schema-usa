@@ -9,6 +9,15 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TrackLike
 {
+    public const TRACK_LIKE_TYPES = [
+        'facebook',
+        'instagram',
+        'website',
+        'artist-page',
+        'release-page',
+        'streaming-service',
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

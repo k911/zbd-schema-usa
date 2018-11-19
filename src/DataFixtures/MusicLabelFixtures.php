@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class MusicLabelFixtures extends Fixture
 {
-    public const COUNT = 10000;
+    public const COUNT = 100;
     public const CHUNK_SIZE = 1000;
 
     /**

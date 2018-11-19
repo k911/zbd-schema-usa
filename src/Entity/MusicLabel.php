@@ -24,6 +24,8 @@ class MusicLabel
     private $name;
 
     /**
+     * @var \DateTimeImmutable
+     *
      * @ORM\Column(type="date_immutable")
      */
     private $creationDate;
@@ -75,6 +77,17 @@ class MusicLabel
     public function getCreationDate(): ?\DateTimeImmutable
     {
         return $this->creationDate;
+    }
+
+    public function getCreationDateTime(): ?\DateTime
+    {
+        if (null === $this->creationDate) {
+            return null;
+        }
+
+        $dt = new \DateTime();
+        $dt->setTimestamp($this->creationDate->getTimestamp());
+        return $dt;
     }
 
     public function setCreationDate(\DateTimeImmutable $creationDate): self

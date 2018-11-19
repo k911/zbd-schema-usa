@@ -24,7 +24,7 @@ final class MusicLabelFactory
 
         $musicLabel->setName($this->faker->company);
         $musicLabel->setCreationDate(\DateTimeImmutable::createFromMutable(
-            $this->faker->dateTime
+            $this->faker->dateTimeBetween('-60 years', 'now')
         ));
         $musicLabel->setCreator(\sprintf('%s %s', $this->faker->firstName, $this->faker->lastName));
 

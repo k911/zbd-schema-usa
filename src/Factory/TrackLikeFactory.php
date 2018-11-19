@@ -26,14 +26,7 @@ final class TrackLikeFactory
         $trackLike = new TrackLike();
         $trackLike->setTrack($track);
         $trackLike->setCustomer($customer);
-        $trackLike->setSource($this->faker->randomElement([
-            'facebook',
-            'instagram',
-            'website',
-            'artist-page',
-            'release-page',
-            'streaming-service',
-        ]));
+        $trackLike->setSource($this->faker->randomElement(TrackLike::TRACK_LIKE_TYPES));
         $trackLike->setAddedAt(\DateTimeImmutable::createFromMutable(
             $this->faker->dateTimeThisDecade
         ));

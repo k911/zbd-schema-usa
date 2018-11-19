@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Release
 {
+
+    public const RELEASE_TYPES = [
+        'single', 'album', 'digital',
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

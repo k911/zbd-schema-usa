@@ -9,6 +9,15 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ReleaseLike
 {
+
+    public const RELEASE_LIKE_TYPES = [
+        'facebook',
+        'instagram',
+        'website',
+        'artist-page',
+        'streaming-service',
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
