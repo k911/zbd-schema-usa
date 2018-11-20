@@ -39,6 +39,11 @@ class MusicLabelStreamingServiceContract
      */
     private $streamingService;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $costPerStream;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -103,5 +108,17 @@ class MusicLabelStreamingServiceContract
         }
 
         return ($this->startDate <= $endDate) && ($endSelf >= $startDate);
+    }
+
+    public function getCostPerStream(): ?int
+    {
+        return $this->costPerStream;
+    }
+
+    public function setCostPerStream(int $costPerStream): self
+    {
+        $this->costPerStream = $costPerStream;
+
+        return $this;
     }
 }
