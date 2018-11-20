@@ -9,6 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ReleaseOrder
 {
+    public const TYPES = [
+        'stream', //from streaming service
+        'digital', //digital album in e-store
+        'e-store', // via internet shop
+        'classic-shop', // classic order in real shop
+        'concert', // with artist signature
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

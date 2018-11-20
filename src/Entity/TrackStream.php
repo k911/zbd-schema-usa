@@ -9,6 +9,15 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TrackStream
 {
+    public const QUALITY = [
+        'flac',
+        'wav',
+        'aac-128',
+        'mp3-320',
+        'mp3-128',
+        'ogg',
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

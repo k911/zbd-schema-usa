@@ -18,11 +18,15 @@ class MusicLabelStreamingServiceContract
     private $id;
 
     /**
+     * @var \DateTimeImmutable
+     *
      * @ORM\Column(type="date_immutable")
      */
     private $startDate;
 
     /**
+     * @var \DateTimeImmutable
+     *
      * @ORM\Column(type="date_immutable", nullable=true)
      */
     private $endDate;
@@ -64,6 +68,20 @@ class MusicLabelStreamingServiceContract
     public function getEndDate(): ?\DateTimeImmutable
     {
         return $this->endDate;
+    }
+
+    public function getEndDateDT(): \DateTime
+    {
+        if (null === $this->endDate) {
+            return new \DateTime('now');
+        }
+
+        return (new \DateTime())->setTimestamp($this->endDate->getTimestamp());
+    }
+
+    public function getStartDateDT(): \DateTime
+    {
+        return (new \DateTime())->setTimestamp($this->startDate->getTimestamp());
     }
 
     public function setEndDate(?\DateTimeImmutable $endDate): self

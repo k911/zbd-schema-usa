@@ -16,6 +16,8 @@ class MusicLabelStreamingServiceContractFixtures extends Fixture implements Depe
     public const CHUNK_SIZE = 1000;
     public const MAX_DIFFERENT_RANGE_TRIES = 3;
     public const MAX_CONTRACTS_PER_PAIR = 3;
+    public static $contractsCount = 0;
+    public static $contractMusicLabel = [];
 
     /**
      * @var MusicLabelStreamingServiceContractFactory
@@ -37,7 +39,6 @@ class MusicLabelStreamingServiceContractFixtures extends Fixture implements Depe
             1, $streamingServicesCount);
 
         $chunkCounter = 0;
-        $counter = self::MAX_COUNT;
         foreach ($musicLabelStreamingServicePairs as [$musicLabelId, $streamingServiceId]) {
 
             /** @var StreamingService $streamingService */
@@ -66,9 +67,13 @@ class MusicLabelStreamingServiceContractFixtures extends Fixture implements Depe
                 --$contractsNum;
 
                 $manager->persist($contract);
+
                 --$chunkCounter;
-                --$counter;
-                if ($counter === 0) {
+                ++self::$contractsCount;
+                $this->addReference(\sprintf('label-service-contract-%d', self::$contractsCount), $contract);
+                self::$contractMusicLabel[self::$contractsCount] = $musicLabelId;
+
+                if (self::$contractsCount === self::MAX_COUNT) {
                     break 2;
                 }
 

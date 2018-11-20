@@ -39,11 +39,11 @@ final class MusicLabelStreamingServiceContractFactory
 
         $contract->setCostPerStream($costPerStream);
 
-        $startDate = $this->faker->dateTimeThisCentury('-1 days');
+        $startDate = $this->faker->dateTimeThisCentury('-3 days');
         $contract->setStartDate(\DateTimeImmutable::createFromMutable($startDate));
         if (Random::int(0, 100) > 30) {
-            $endDate = $this->faker->dateTimeBetween($startDate);
-            $contract->setEndDate(\DateTimeImmutable::createFromMutable($endDate));
+            $endDate = $this->faker->dateTimeBetween($startDate, '-2 days');
+            $contract->setEndDate(\DateTimeImmutable::createFromMutable($endDate->modify('+1 day')));
         }
 
         return $contract;

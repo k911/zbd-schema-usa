@@ -24,6 +24,7 @@ class ReleaseFixtures extends Fixture implements DependentFixtureInterface
     private $upcs;
 
     public static $releaseFixturesCount = 0;
+    public static $musicLabelReleases = [];
 
     public function __construct(ReleaseFactory $factory)
     {
@@ -39,12 +40,14 @@ class ReleaseFixtures extends Fixture implements DependentFixtureInterface
             /** @var MusicLabel $musicLabel */
             $musicLabel = $this->getReference(\sprintf('music-label-%d', $l));
 
-            $count = Random::int(0, self::MAX_COUNT_PER_MUSIC_LABEL);
+            $count = Random::int(1, self::MAX_COUNT_PER_MUSIC_LABEL);
             for ($i = 1; $i <= $count; ++$i) {
                 $release = $this->factory->create($this->getUpc(), $musicLabel, $this->getRandomStreamingRights());
                 $manager->persist($release);
                 ++self::$releaseFixturesCount;
                 $this->addReference(\sprintf('release-%d', self::$releaseFixturesCount), $release);
+
+                self::$musicLabelReleases[$l][] = self::$releaseFixturesCount;
 
                 if (self::$releaseFixturesCount === self::MAX_COUNT) {
                     break 2;

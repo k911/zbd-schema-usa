@@ -24,6 +24,7 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
     private $factory;
 
     public static $trackFixturesCount = 0;
+    public static $releaseTracks = [];
 
     public function __construct(TrackFactory $factory)
     {
@@ -41,7 +42,7 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
             /** @var Release $release */
             $release = $this->getReference(\sprintf('release-%d', $l));
 
-            $count = Random::int(0, self::MAX_COUNT_PER_RELEASE);
+            $count = Random::int(1, self::MAX_COUNT_PER_RELEASE);
             for ($i = 1; $i <= $count; ++$i) {
                 $track = $this->factory->create($isrcGenerator->current(), $release);
                 $isrcGenerator->next();
@@ -51,6 +52,7 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
                 $manager->persist($track);
                 ++self::$trackFixturesCount;
                 $this->addReference(\sprintf('track-%d', self::$trackFixturesCount), $track);
+                self::$releaseTracks[$l][] = self::$trackFixturesCount;
 
                 if (self::$trackFixturesCount === self::MAX_COUNT) {
                     break 2;

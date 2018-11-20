@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Factory;
 
+use App\DataFixtures\CustomerFixtures;
+use App\Entity\Customer;
 use App\Entity\StreamingService;
 use Faker\Generator;
 
