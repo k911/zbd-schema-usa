@@ -201,4 +201,16 @@ class MusicLabel
 
         return $this;
     }
+
+    public function getArtistsForDate(\DateTimeImmutable $date): array
+    {
+        $artists = [];
+        foreach ($this->getMusicLabelArtistContracts() as $contract) {
+            if ($contract->validOn($date)) {
+                $artists[] = $contract->getArtist();
+            }
+        }
+
+        return $artists;
+    }
 }

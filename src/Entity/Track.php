@@ -11,6 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Track
 {
+    public const EDIT_TYPES = [
+        'original',
+        'radio',
+        'instrumental',
+        'preview',
+        'cover',
+        'remix',
+        'mix'
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -34,9 +44,9 @@ class Track
     private $duration;
 
     /**
-     * @ORM\Column(type="simple_array")
+     * @ORM\Column(type="string", length=255)
      */
-    private $edit = [];
+    private $edit;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Release", inversedBy="tracks")
@@ -101,12 +111,12 @@ class Track
         return $this;
     }
 
-    public function getEdit(): ?array
+    public function getEdit(): ?string
     {
         return $this->edit;
     }
 
-    public function setEdit(array $edit): self
+    public function setEdit(string $edit): self
     {
         $this->edit = $edit;
 

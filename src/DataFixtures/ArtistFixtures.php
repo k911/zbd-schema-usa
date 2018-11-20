@@ -31,6 +31,12 @@ class ArtistFixtures extends Fixture
             }
         }
 
+        $variousArtists = $this->artistFactory->create();
+        $variousArtists->setName('Various Artists');
+        $variousArtists->setGender('other');
+        $this->addReference('artist-various-artists', $variousArtists);
+        $manager->persist($variousArtists);
+
         $manager->flush();
     }
 }

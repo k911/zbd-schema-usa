@@ -92,6 +92,11 @@ class MusicLabelArtistContract
         return $this;
     }
 
+    public function validOn(DateTimeImmutable $date): bool
+    {
+        return $this->validBetween($date, $date);
+    }
+
     public function validBetween(DateTimeImmutable $startDate, DateTimeImmutable $endDate = null): bool
     {
         $now = new DateTimeImmutable('now');

@@ -78,4 +78,19 @@ final class Random
         }
     }
 
+    public static function uniqueAlphaNumGenerator(int $length, int $count = 10000): Generator
+    {
+        $registry = [];
+
+        while ($count > 0) {
+            $generated = substr(\bin2hex(random_bytes($length)), 0, $length);
+
+            if (!isset($registry[$generated])) {
+                yield $generated;
+                $registry[$generated] = true;
+                --$count;
+            }
+        }
+    }
+
 }
