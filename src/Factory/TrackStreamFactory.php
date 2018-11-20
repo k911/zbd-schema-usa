@@ -26,6 +26,7 @@ final class TrackStreamFactory
     public function create(Track $track, Customer $customer, MusicLabelStreamingServiceContract $contract): TrackStream
     {
         $trackStream = new TrackStream();
+        $trackStream->setContract($contract);
         $trackStream->setTrack($track);
         $trackStream->setStreamingService($contract->getStreamingService());
         $trackStream->setCustomer($customer);

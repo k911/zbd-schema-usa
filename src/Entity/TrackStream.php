@@ -68,6 +68,12 @@ class TrackStream
      */
     private $customerIp;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\MusicLabelStreamingServiceContract")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $contract;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -165,6 +171,18 @@ class TrackStream
     public function setCustomerIp(string $customerIp): self
     {
         $this->customerIp = $customerIp;
+
+        return $this;
+    }
+
+    public function getContract(): ?MusicLabelStreamingServiceContract
+    {
+        return $this->contract;
+    }
+
+    public function setContract(?MusicLabelStreamingServiceContract $contract): self
+    {
+        $this->contract = $contract;
 
         return $this;
     }

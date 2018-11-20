@@ -72,12 +72,10 @@ class TrackStreamFixtures extends Fixture implements DependentFixtureInterface
     {
         $releaseIds = ReleaseFixtures::$musicLabelReleases[$labelId] ?? [];
         foreach ($releaseIds as $releaseId) {
-            if (Random::int(0, 3) > 1) {
-                $tracks = TrackFixtures::$releaseTracks[$releaseId] ?? [];
-                foreach ($tracks as $trackId) {
-                    if (Random::int(0, 10) > 7) {
-                        yield $this->getReference(\sprintf('track-%d', $trackId));
-                    }
+            $tracks = TrackFixtures::$releaseTracks[$releaseId] ?? [];
+            foreach ($tracks as $trackId) {
+                if (Random::int(0, 10) > 7) {
+                    yield $this->getReference(\sprintf('track-%d', $trackId));
                 }
             }
         }
