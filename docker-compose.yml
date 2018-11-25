@@ -1,37 +1,56 @@
 version: "3.6"
 
 volumes:
-  mysql_data:
+  mysql_data: {}
+  oracle_data: {}
 
 services:
   composer:
     env_file: .env.docker
-    build: 
+    build:
       context: .
       target: Composer
 
-  console:
+  interactive:
     env_file: .env.docker
-    build: 
+    build:
       context: .
       target: SymfonyConsole
+    volumes: 
+      - ./src:/usr/src/app/src
+      - ./var:/usr/src/app/var
+      - ./vendor:/usr/src/app/vendor
+
+  console:
+    env_file: .env.docker
+    build:
+      context: .
+      target: SymfonyConsole
+
+  oradb:
+    image: k911/oracle-12c:0.2.0-ee-prebuilt
+    ports:
+      - 1521:1521
+    shm_size: 1G
+    volumes:
+      - oracle_data:/opt/oracle/oradata
 
   mysql:
     image: mysql:5.7
     ports:
-    - "3306:3306"
+      - "3306:3306"
     environment:
-    - MYSQL_ROOT_PASSWORD=Passw0rd
+      - MYSQL_ROOT_PASSWORD=Passw0rd
     volumes:
-    - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   pma:
     image: phpmyadmin/phpmyadmin:4.7
     depends_on:
-    - mysql
+      - mysql
     environment:
-    - PMA_HOST=mysql
-    - PMA_USER=root
-    - PMA_PASSWORD=Passw0rd
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=Passw0rd
     ports:
-    - "8080:80"
+      - "8080:80"

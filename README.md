@@ -3,6 +3,7 @@
 1. Build docker images and start mysql and pma:
 
     ```bash
+    docker login
     docker-compose build --pull
     docker-compose up -d mysql pma
     ```
