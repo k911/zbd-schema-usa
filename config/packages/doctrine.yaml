@@ -1,29 +1,43 @@
 parameters:
-    # Adds a fallback DATABASE_URL if the env var is not set.
-    # This allows you to run cache:warmup even if your
-    # environment variables are not available yet.
-    # You should not need to change this value.
     env(DATABASE_URL): ''
+    env(WAREHOUSE_STAGE_URL): ''
 
 doctrine:
     dbal:
-        # configure these for your database server
-        driver: 'pdo_mysql'
-        server_version: '5.7'
-        charset: utf8mb4
-        default_table_options:
-            charset: utf8mb4
-            collate: utf8mb4_unicode_ci
+        default_connection: default
+        connections:
+            default:
+                driver: 'pdo_mysql'
+                server_version: '5.7'
+                charset: utf8mb4
+                url: '%env(resolve:DATABASE_URL)%'
+                default_table_options:
+                    charset: utf8mb4
+                    collate: utf8mb4_unicode_ci
 
-        url: '%env(resolve:DATABASE_URL)%'
+            warehouse_stage:
+                url: '%env(resolve:WAREHOUSE_STAGE_URL)%'
+                charset: utf8mb4
+
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
-        naming_strategy: doctrine.orm.naming_strategy.underscore
-        auto_mapping: true
-        mappings:
-            App:
-                is_bundle: false
-                type: annotation
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+        default_entity_manager: default
+        entity_managers:
+            default:
+                connection: default
+                mappings:
+                    App:
+                        is_bundle: false
+                        type: annotation
+                        dir: '%kernel.project_dir%/src/Entity'
+                        prefix: 'App\Entity'
+                        alias: App
+            warehouse_stage:
+                connection: warehouse_stage
+                mappings:
+                    DataWarehouseStage:
+                        is_bundle: false
+                        type: annotation
+                        dir: '%kernel.project_dir%/src/DataWarehouseStage'
+                        prefix: 'App\DataWarehouseStage'
+                        alias: DataWarehouseStage
