@@ -2,7 +2,9 @@ version: "3.6"
 
 volumes:
   mysql_data: {}
-  oracle_data: {}
+  oracle_data:
+    external:
+      name: oracle-main-data-volume
 
 services:
   composer:
@@ -17,9 +19,7 @@ services:
       context: .
       target: SymfonyConsole
     volumes: 
-      - ./src:/usr/src/app/src
-      - ./var:/usr/src/app/var
-      - ./vendor:/usr/src/app/vendor
+      - .:/usr/src/app
 
   console:
     env_file: .env.docker
@@ -28,12 +28,11 @@ services:
       target: SymfonyConsole
 
   oradb:
-    image: k911/oracle-12c:0.2.0-ee-prebuilt
+    image: store/oracle/database-enterprise:12.2.0.1-slim
     ports:
       - 1521:1521
-    shm_size: 1G
     volumes:
-      - oracle_data:/opt/oracle/oradata
+      - oracle_data:/ORCL
 
   mysql:
     image: mysql:5.7
