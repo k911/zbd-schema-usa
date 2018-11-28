@@ -8,7 +8,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20181104184632 extends AbstractMigration
+final class Version20181128194808 extends AbstractMigration
 {
     public function up(Schema $schema) : void
     {
@@ -16,10 +16,10 @@ final class Version20181104184632 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE release_like (id INT AUTO_INCREMENT NOT NULL, customer_id INT NOT NULL, music_release_id INT NOT NULL, source VARCHAR(255) NOT NULL, added_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', customer_ip VARCHAR(255) NOT NULL, INDEX IDX_E194F0A49395C3F3 (customer_id), INDEX IDX_E194F0A410292B95 (music_release_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE track_stream (id INT AUTO_INCREMENT NOT NULL, track_id INT NOT NULL, streaming_service_id INT NOT NULL, customer_id INT NOT NULL, started_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', bandwith INT NOT NULL, quality VARCHAR(255) NOT NULL, ended_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_B82B7FF55ED23C43 (track_id), INDEX IDX_B82B7FF5F3328569 (streaming_service_id), INDEX IDX_B82B7FF59395C3F3 (customer_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE track_stream (id INT AUTO_INCREMENT NOT NULL, track_id INT NOT NULL, streaming_service_id INT NOT NULL, customer_id INT NOT NULL, contract_id INT NOT NULL, started_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', bandwith INT NOT NULL, quality VARCHAR(255) NOT NULL, ended_at DATETIME DEFAULT NULL COMMENT \'(DC2Type:datetime_immutable)\', customer_ip VARCHAR(255) NOT NULL, INDEX IDX_B82B7FF55ED23C43 (track_id), INDEX IDX_B82B7FF5F3328569 (streaming_service_id), INDEX IDX_B82B7FF59395C3F3 (customer_id), INDEX IDX_B82B7FF52576E0FD (contract_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE music_label (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, creation_date DATE NOT NULL COMMENT \'(DC2Type:date_immutable)\', creator VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE music_label_streaming_service_contract (id INT AUTO_INCREMENT NOT NULL, music_label_id INT NOT NULL, streaming_service_id INT NOT NULL, start_date DATE NOT NULL COMMENT \'(DC2Type:date_immutable)\', end_date DATE DEFAULT NULL COMMENT \'(DC2Type:date_immutable)\', INDEX IDX_87E7AF2FF4AA731F (music_label_id), INDEX IDX_87E7AF2FF3328569 (streaming_service_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE track (id INT AUTO_INCREMENT NOT NULL, music_release_id INT NOT NULL, title VARCHAR(255) NOT NULL, isrc VARCHAR(12) NOT NULL, duration INT NOT NULL, edit LONGTEXT NOT NULL COMMENT \'(DC2Type:simple_array)\', INDEX IDX_D6E3F8A610292B95 (music_release_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE music_label_streaming_service_contract (id INT AUTO_INCREMENT NOT NULL, music_label_id INT NOT NULL, streaming_service_id INT NOT NULL, start_date DATE NOT NULL COMMENT \'(DC2Type:date_immutable)\', end_date DATE DEFAULT NULL COMMENT \'(DC2Type:date_immutable)\', cost_per_stream INT NOT NULL, INDEX IDX_87E7AF2FF4AA731F (music_label_id), INDEX IDX_87E7AF2FF3328569 (streaming_service_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE track (id INT AUTO_INCREMENT NOT NULL, music_release_id INT NOT NULL, title VARCHAR(255) NOT NULL, isrc VARCHAR(12) NOT NULL, duration INT NOT NULL, edit VARCHAR(255) NOT NULL, INDEX IDX_D6E3F8A610292B95 (music_release_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE track_artist (track_id INT NOT NULL, artist_id INT NOT NULL, INDEX IDX_499B576E5ED23C43 (track_id), INDEX IDX_499B576EB7970CF8 (artist_id), PRIMARY KEY(track_id, artist_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE streaming_service (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, url VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('CREATE TABLE track_like (id INT AUTO_INCREMENT NOT NULL, customer_id INT NOT NULL, track_id INT NOT NULL, source VARCHAR(255) NOT NULL, added_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', customer_ip VARCHAR(255) NOT NULL, INDEX IDX_313568B69395C3F3 (customer_id), INDEX IDX_313568B65ED23C43 (track_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
@@ -36,6 +36,7 @@ final class Version20181104184632 extends AbstractMigration
         $this->addSql('ALTER TABLE track_stream ADD CONSTRAINT FK_B82B7FF55ED23C43 FOREIGN KEY (track_id) REFERENCES track (id)');
         $this->addSql('ALTER TABLE track_stream ADD CONSTRAINT FK_B82B7FF5F3328569 FOREIGN KEY (streaming_service_id) REFERENCES streaming_service (id)');
         $this->addSql('ALTER TABLE track_stream ADD CONSTRAINT FK_B82B7FF59395C3F3 FOREIGN KEY (customer_id) REFERENCES customer (id)');
+        $this->addSql('ALTER TABLE track_stream ADD CONSTRAINT FK_B82B7FF52576E0FD FOREIGN KEY (contract_id) REFERENCES music_label_streaming_service_contract (id)');
         $this->addSql('ALTER TABLE music_label_streaming_service_contract ADD CONSTRAINT FK_87E7AF2FF4AA731F FOREIGN KEY (music_label_id) REFERENCES music_label (id)');
         $this->addSql('ALTER TABLE music_label_streaming_service_contract ADD CONSTRAINT FK_87E7AF2FF3328569 FOREIGN KEY (streaming_service_id) REFERENCES streaming_service (id)');
         $this->addSql('ALTER TABLE track ADD CONSTRAINT FK_D6E3F8A610292B95 FOREIGN KEY (music_release_id) REFERENCES music_release (id)');
@@ -61,6 +62,7 @@ final class Version20181104184632 extends AbstractMigration
         $this->addSql('ALTER TABLE music_label_streaming_service_contract DROP FOREIGN KEY FK_87E7AF2FF4AA731F');
         $this->addSql('ALTER TABLE music_release DROP FOREIGN KEY FK_5AB39166F4AA731F');
         $this->addSql('ALTER TABLE music_label_artist_contract DROP FOREIGN KEY FK_E2C93B17F4AA731F');
+        $this->addSql('ALTER TABLE track_stream DROP FOREIGN KEY FK_B82B7FF52576E0FD');
         $this->addSql('ALTER TABLE track_stream DROP FOREIGN KEY FK_B82B7FF55ED23C43');
         $this->addSql('ALTER TABLE track_artist DROP FOREIGN KEY FK_499B576E5ED23C43');
         $this->addSql('ALTER TABLE track_like DROP FOREIGN KEY FK_313568B65ED23C43');
