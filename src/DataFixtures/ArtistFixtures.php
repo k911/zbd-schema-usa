@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ArtistFixtures extends Fixture
 {
-    public const COUNT = 10000;
+    public const COUNT = 50000;
     public const CHUNK_SIZE = 5000;
     private $artistFactory;
 

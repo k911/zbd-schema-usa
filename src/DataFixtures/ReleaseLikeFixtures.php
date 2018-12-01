@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ReleaseLikeFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 50000;
+    public const MAX_COUNT = 150000;
     public const CHUNK_SIZE = 20000;
     public const MAX_PER_RELEASE = 10;
     private const RELEASES_CHUNK = 2000;

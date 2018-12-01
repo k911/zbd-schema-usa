@@ -14,9 +14,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class TransactionFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 100000;
+    public const MAX_COUNT = 200000;
     public const CHUNK_SIZE = 20000;
     public const MAX_PER_CUSTOMER = 10;
+    private const CUSTOMER_CHUNK = 5000;
     public static $transactionsCount = 0;
 
     /**
@@ -58,7 +59,7 @@ class TransactionFixtures extends Fixture implements DependentFixtureInterface
                 }
             }
 
-            if($r % 1000 === 0) {
+            if($r % self::CUSTOMER_CHUNK === 0) {
                 $manager->flush();
                 $manager->clear(Transaction::class);
                 $manager->clear(Customer::class);

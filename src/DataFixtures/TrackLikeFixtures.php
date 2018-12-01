@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class TrackLikeFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 50000;
+    public const MAX_COUNT = 500000;
     public const CHUNK_SIZE = 20000;
     public const MAX_PER_TRACK = 10;
     private const TRACKS_CHUNK = 5000;

@@ -19,8 +19,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class TrackStreamFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 100000;
-    public const CHUNK_SIZE = 10000;
+    public const MAX_COUNT = 500000;
+    public const CHUNK_SIZE = 20000;
     public const MAX_PER_TRACK = 10;
     private const CONTRACTS_CHUNK = 200;
     public static $trackStreamsCount = 0;

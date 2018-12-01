@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 10000;
+    public const MAX_COUNT = 20000;
     public const CHUNK_SIZE = 1000;
     public const MAX_DIFFERENT_RANGE_TRIES = 5;
     public const MAX_CONTRACTS_PER_PAIR = 10;

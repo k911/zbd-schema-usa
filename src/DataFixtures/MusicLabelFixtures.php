@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class MusicLabelFixtures extends Fixture
 {
-    public const COUNT = 1000;
+    public const COUNT = 3000;
     public const CHUNK_SIZE = 1000;
 
     /**

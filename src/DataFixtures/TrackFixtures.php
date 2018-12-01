@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class TrackFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 100000;
+    public const MAX_COUNT = 250000;
     public const MAX_COUNT_PER_RELEASE = 10;
     public const CHUNK_SIZE = 10000;
     public const MAX_ARTISTS = 3;

@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ReleaseFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 10000;
+    public const MAX_COUNT = 25000;
     public const MAX_COUNT_PER_MUSIC_LABEL = 100;
     public const CHUNK_SIZE = 2500;
     public const MAX_STREAMING_RIGHTS = 30;

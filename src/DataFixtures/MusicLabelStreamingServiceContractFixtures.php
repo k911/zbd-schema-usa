@@ -14,10 +14,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class MusicLabelStreamingServiceContractFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 10000;
+    public const MAX_COUNT = 20000;
     public const CHUNK_SIZE = 1000;
-    public const MAX_DIFFERENT_RANGE_TRIES = 10;
-    public const MAX_CONTRACTS_PER_PAIR = 20;
+    public const MAX_DIFFERENT_RANGE_TRIES = 15;
+    public const MAX_CONTRACTS_PER_PAIR = 30;
     public static $contractsCount = 0;
     public static $contractMusicLabel = [];
 
