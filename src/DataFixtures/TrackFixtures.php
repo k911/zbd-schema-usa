@@ -3,6 +3,8 @@
 namespace App\DataFixtures;
 
 use App\Entity\Artist;
+use App\Entity\MusicLabel;
+use App\Entity\MusicLabelArtistContract;
 use App\Entity\Release;
 use App\Entity\Track;
 use App\Factory\TrackFactory;
@@ -10,6 +12,8 @@ use App\Random\Random;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class TrackFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -17,6 +21,7 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
     public const MAX_COUNT_PER_RELEASE = 10;
     public const CHUNK_SIZE = 10000;
     public const MAX_ARTISTS = 3;
+    private const RELEASES_CHUNK = 2000;
 
     /**
      * @var TrackFactory
@@ -34,8 +39,8 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         $chunkCounter = 0;
-
-        $isrcGenerator = Random::uniqueAlphaNumGenerator(12, ReleaseFixtures::$releaseFixturesCount);
+        $progressBar = new ProgressBar(new ConsoleOutput(), self::MAX_COUNT);
+        $isrcGenerator = Random::uniqueAlphaNumGenerator(12, self::MAX_COUNT);
         $isrcGenerator->rewind();
         for ($l = 1; $l <= ReleaseFixtures::$releaseFixturesCount; ++$l) {
 
@@ -52,6 +57,7 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
                 $manager->persist($track);
                 ++self::$trackFixturesCount;
                 $this->addReference(\sprintf('track-%d', self::$trackFixturesCount), $track);
+                $progressBar->advance();
                 self::$releaseTracks[$l][] = self::$trackFixturesCount;
 
                 if (self::$trackFixturesCount === self::MAX_COUNT) {
@@ -62,13 +68,26 @@ class TrackFixtures extends Fixture implements DependentFixtureInterface
                 if ($chunkCounter === self::CHUNK_SIZE) {
                     $chunkCounter = 0;
                     $manager->flush();
+                    $manager->clear(Track::class);
                 }
             }
 
-            $manager->flush();
+            if ($l % self::RELEASES_CHUNK === 0) {
+                $manager->flush();
+                $manager->clear(Track::class);
+                $manager->clear(MusicLabel::class);
+                $manager->clear(Release::class);
+                $manager->clear(Artist::class);
+                $manager->clear(MusicLabelArtistContract::class);
+            }
         }
 
+        $progressBar->setMaxSteps(self::$trackFixturesCount);
         $manager->flush();
+        $manager->clear();
+        $progressBar->finish();
+        echo PHP_EOL;
+        echo \sprintf("Total: %d\n", self::$trackFixturesCount);
     }
 
     public function addRandomArtists(Release $release, Track $track): void

@@ -43,7 +43,7 @@ class StreamingServiceFixtures extends Fixture
             $this->addReference(\sprintf('streaming-service-%d', $i), $service);
             ++$i;
         }
-
         $manager->flush();
+        echo \sprintf("Total: %d\n", \count(self::STREAMING_SERVICES));
     }
 }

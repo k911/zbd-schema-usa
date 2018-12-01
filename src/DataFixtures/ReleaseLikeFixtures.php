@@ -4,17 +4,21 @@ namespace App\DataFixtures;
 
 use App\Entity\Customer;
 use App\Entity\Release;
+use App\Entity\ReleaseLike;
 use App\Factory\ReleaseLikeFactory;
 use App\Random\Random;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ReleaseLikeFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 100000;
-    public const CHUNK_SIZE = 10000;
+    public const MAX_COUNT = 50000;
+    public const CHUNK_SIZE = 20000;
     public const MAX_PER_RELEASE = 10;
+    private const RELEASES_CHUNK = 2000;
     public static $releaseLikesCount = 0;
 
     /**
@@ -29,6 +33,8 @@ class ReleaseLikeFixtures extends Fixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager): void
     {
+        $progressBar = new ProgressBar(new ConsoleOutput(), self::MAX_COUNT);
+
         $chunkCounter = 0;
 
         for ($r = 1; $r <= ReleaseFixtures::$releaseFixturesCount; ++$r) {
@@ -43,6 +49,7 @@ class ReleaseLikeFixtures extends Fixture implements DependentFixtureInterface
                 $like = $this->factory->create($release, $customer);
                 $manager->persist($like);
                 ++self::$releaseLikesCount;
+                $progressBar->advance();
 //            $this->addReference(\sprintf('release-like-%d', self::$releaseLikesCount), $like);
 
                 if (self::$releaseLikesCount === self::MAX_COUNT) {
@@ -53,13 +60,24 @@ class ReleaseLikeFixtures extends Fixture implements DependentFixtureInterface
                 if ($chunkCounter === self::CHUNK_SIZE) {
                     $chunkCounter = 0;
                     $manager->flush();
+                    $manager->clear(ReleaseLike::class);
                 }
             }
 
-            $manager->flush();
+            if ($r % self::RELEASES_CHUNK === 0) {
+                $manager->flush();
+                $manager->clear(ReleaseLike::class);
+                $manager->clear(Release::class);
+                $manager->clear(Customer::class);
+            }
         }
 
+        $progressBar->setMaxSteps(self::$releaseLikesCount);
         $manager->flush();
+        $manager->clear();
+        $progressBar->finish();
+        echo PHP_EOL;
+        echo \sprintf("Total: %d\n", self::$releaseLikesCount);
     }
 
     /**

@@ -9,6 +9,8 @@ use App\Random\Random;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -16,6 +18,7 @@ class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtu
     public const CHUNK_SIZE = 1000;
     public const MAX_DIFFERENT_RANGE_TRIES = 5;
     public const MAX_CONTRACTS_PER_PAIR = 10;
+    public static $musicLabelArtistContractsCount = 0;
 
     /**
      * @var MusicLabelArtistContractFactory
@@ -36,6 +39,7 @@ class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtu
 
         $chunkCounter = 0;
         $counter = self::MAX_COUNT;
+        $progressBar = new ProgressBar(new ConsoleOutput(), self::MAX_COUNT);
         foreach ($musicLabelArtistPairs as [$musicLabelId, $artistId]) {
 
             /** @var Artist $artist */
@@ -64,6 +68,8 @@ class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtu
                 --$contractsNum;
 
                 $manager->persist($contract);
+                $progressBar->advance();
+                ++self::$musicLabelArtistContractsCount;
                 --$chunkCounter;
                 --$counter;
                 if ($counter === 0) {
@@ -77,7 +83,12 @@ class MusicLabelArtistContractFixtures extends Fixture implements DependentFixtu
             }
         }
 
+        $progressBar->setMaxSteps(self::$musicLabelArtistContractsCount);
         $manager->flush();
+        $manager->clear();
+        $progressBar->finish();
+        echo PHP_EOL;
+        echo \sprintf("Total: %d\n", self::$musicLabelArtistContractsCount);
     }
 
     /**
