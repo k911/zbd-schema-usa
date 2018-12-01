@@ -12,7 +12,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class ReleaseOrderFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 1000;
+    public const MAX_COUNT = 100000;
     public const CHUNK_SIZE = 1000;
     public const MAX_PER_TRANSACTION = 10;
     public static $releaseOrderCount = 0;

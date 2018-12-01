@@ -65,7 +65,7 @@ RUN mv .env.docker .env && \
     bin/console cache:clear
 
 FROM base as SymfonyConsole
-ENTRYPOINT ["bin/console"]
+ENTRYPOINT ["php", "-d", "memory_limit=-1", "bin/console"]
 CMD ["list"]
 
 FROM base as Composer

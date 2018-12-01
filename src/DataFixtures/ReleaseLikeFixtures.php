@@ -12,8 +12,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class ReleaseLikeFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 1000;
-    public const CHUNK_SIZE = 1000;
+    public const MAX_COUNT = 100000;
+    public const CHUNK_SIZE = 10000;
     public const MAX_PER_RELEASE = 10;
     public static $releaseLikesCount = 0;
 

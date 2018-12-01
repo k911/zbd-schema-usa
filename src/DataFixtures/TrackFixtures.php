@@ -13,9 +13,9 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class TrackFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 1000;
+    public const MAX_COUNT = 100000;
     public const MAX_COUNT_PER_RELEASE = 10;
-    public const CHUNK_SIZE = 1000;
+    public const CHUNK_SIZE = 10000;
     public const MAX_ARTISTS = 3;
 
     /**

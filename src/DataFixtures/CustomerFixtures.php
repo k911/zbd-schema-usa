@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class CustomerFixtures extends Fixture
 {
-    public const COUNT = 1000;
+    public const COUNT = 10000;
     public const CHUNK_SIZE = 1000;
     private $factory;
 

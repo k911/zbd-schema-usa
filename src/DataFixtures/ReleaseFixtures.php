@@ -11,7 +11,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class ReleaseFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 1000;
+    public const MAX_COUNT = 10000;
     public const MAX_COUNT_PER_MUSIC_LABEL = 100;
     public const CHUNK_SIZE = 1000;
     public const MAX_STREAMING_RIGHTS = 30;

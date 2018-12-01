@@ -14,9 +14,9 @@ use Generator;
 
 class TrackStreamFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 10000;
-    public const CHUNK_SIZE = 1000;
-    public const MAX_PER_TRACK = 30;
+    public const MAX_COUNT = 100000;
+    public const CHUNK_SIZE = 10000;
+    public const MAX_PER_TRACK = 10;
     public static $trackStreamsCount = 0;
 
     /**

@@ -11,7 +11,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 
 class TransactionFixtures extends Fixture implements DependentFixtureInterface
 {
-    public const MAX_COUNT = 1000;
+    public const MAX_COUNT = 10000;
     public const CHUNK_SIZE = 1000;
     public const MAX_PER_CUSTOMER = 10;
     public static $transactionsCount = 0;
