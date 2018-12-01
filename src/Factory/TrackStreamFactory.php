@@ -39,7 +39,9 @@ final class TrackStreamFactory
         ));
 
         if (Random::int(0, 100) > 20) {
-            $endedAtMax = $startedAt->modify(\sprintf('+%d seconds', $track->getDuration()));
+            $endedAtMax = clone $startedAt;
+            $endedAtMax = $endedAtMax->modify(\sprintf('+%d seconds', $track->getDuration()));
+
             $endedAt = $this->faker->dateTimeBetween($startedAt, $endedAtMax);
             $trackStream->setEndedAt(\DateTimeImmutable::createFromMutable(
                 $endedAt

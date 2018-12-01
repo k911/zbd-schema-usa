@@ -1,0 +1,78 @@
+<?php
+
+namespace App\DataFixtures;
+
+use App\Entity\Release;
+use App\Entity\Transaction;
+use App\Factory\ReleaseOrderFactory;
+use App\Random\Random;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+
+class ReleaseOrderFixtures extends Fixture implements DependentFixtureInterface
+{
+    public const MAX_COUNT = 1000;
+    public const CHUNK_SIZE = 1000;
+    public const MAX_PER_TRANSACTION = 10;
+    public static $releaseOrderCount = 0;
+
+    /**
+     * @var ReleaseOrderFactory
+     */
+    private $factory;
+
+    public function __construct(ReleaseOrderFactory $factory)
+    {
+        $this->factory = $factory;
+    }
+
+    public function load(ObjectManager $manager): void
+    {
+        $chunkCounter = 0;
+
+        for ($r = 1; $r <= CustomerFixtures::COUNT; ++$r) {
+            /** @var Transaction $transaction */
+            $transaction = $this->getReference(\sprintf(\sprintf('transaction-%d', $r)));
+
+            $count = Random::int(1, self::MAX_PER_TRANSACTION);
+
+            $releases = Random::uniqueInts($count, 1, ReleaseFixtures::$releaseFixturesCount);
+
+            foreach ($releases as $releaseId) {
+                /** @var Release $release */
+                $release = $this->getReference(\sprintf('release-%d', $releaseId));
+
+                $releaseOrder = $this->factory->create($release, $transaction);
+                $manager->persist($releaseOrder);
+                ++self::$releaseOrderCount;
+//                $this->addReference(\sprintf('release-order-%d', self::$releaseOrderCount), $releaseOrder);
+
+                if (self::$releaseOrderCount === self::MAX_COUNT) {
+                    break 2;
+                }
+
+                ++$chunkCounter;
+                if ($chunkCounter === self::CHUNK_SIZE) {
+                    $chunkCounter = 0;
+                    $manager->flush();
+                }
+            }
+
+            $manager->flush();
+        }
+
+        $manager->flush();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDependencies(): array
+    {
+        return [
+            TransactionFixtures::class,
+            ReleaseFixtures::class,
+        ];
+    }
+}

@@ -11,6 +11,21 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Transaction
 {
+    public const STATUSES = [
+        'new',
+        'completed',
+        'in-progress',
+        'cancelled',
+    ];
+
+    public const PROVIDERS = [
+        'mastercard',
+        'visa',
+        'cash',
+        'payu',
+        'paypal',
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -39,7 +54,7 @@ class Transaction
     private $updatedAt;
 
     /**
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     private $finishedAt;
 
@@ -182,5 +197,23 @@ class Transaction
         $this->customerIp = $customerIp;
 
         return $this;
+    }
+
+    public function getCreatedAtDT(): \DateTime
+    {
+        if (null === $this->createdAt) {
+            return new \DateTime('now');
+        }
+
+        return (new \DateTime())->setTimestamp($this->createdAt->getTimestamp());
+    }
+
+    public function getFinishedAtDT(): \DateTime
+    {
+        if (null === $this->finishedAt) {
+            return new \DateTime('now');
+        }
+
+        return (new \DateTime())->setTimestamp($this->finishedAt->getTimestamp());
     }
 }

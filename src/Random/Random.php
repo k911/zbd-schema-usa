@@ -7,6 +7,20 @@ use Generator;
 
 final class Random
 {
+    public static function uniqueInts(int $count = 1, int $min = 0, int $max = PHP_INT_MAX): Generator
+    {
+        $registry = [];
+
+        while ($count > 0) {
+            $gen = self::int($min, $max);
+            if (!isset($registry[$gen])) {
+                $registry[$gen] = true;
+                --$count;
+                yield self::int($min, $max);
+            }
+        }
+    }
+
     public static function ints(int $count = 1, int $min = 0, int $max = PHP_INT_MAX): Generator
     {
         while ($count > 0) {
