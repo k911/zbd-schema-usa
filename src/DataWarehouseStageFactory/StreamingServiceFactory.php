@@ -24,7 +24,7 @@ final class StreamingServiceFactory
         $stageArtist = new DataWarehouseStageStreamingService();
         $stageArtist->setCanonicalName($this->slugify->slugify($streamingService->getName()));
         $stageArtist->setName($streamingService->getName());
-        $stageArtist->setCreatedAt(new \DateTimeImmutable('now'));
+        $stageArtist->setCreatedAt(new \DateTimeImmutable('now')); // TODO: CHANGE
 
         return $stageArtist;
     }

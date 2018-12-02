@@ -3,12 +3,12 @@
 namespace App\Command;
 
 use App\DataWarehouseStageMigrator\ArtistMigrator;
+use App\DataWarehouseStageMigrator\CustomerMigrator;
 use App\DataWarehouseStageMigrator\MusicLabelMigrator;
 use App\DataWarehouseStageMigrator\StageEntityPersister;
 use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Coroutine\Channel;
-use Swoole\Runtime;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,6 +44,10 @@ class StagingMigrateCommand extends Command
      * @var MusicLabelMigrator
      */
     private $musicLabelMigrator;
+    /**
+     * @var CustomerMigrator
+     */
+    private $customerMigrator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -51,6 +55,7 @@ class StagingMigrateCommand extends Command
         ArtistMigrator $artistMigrator,
         StreamingServiceMigrator $streamingServiceMigrator,
         MusicLabelMigrator $musicLabelMigrator,
+        CustomerMigrator $customerMigrator,
         StageEntityPersister $entityPersister
     )
     {
@@ -60,6 +65,7 @@ class StagingMigrateCommand extends Command
         $this->entityPersister = $entityPersister;
         $this->streamingServiceMigrator = $streamingServiceMigrator;
         $this->musicLabelMigrator = $musicLabelMigrator;
+        $this->customerMigrator = $customerMigrator;
 
         parent::__construct();
     }
@@ -95,6 +101,7 @@ class StagingMigrateCommand extends Command
             'Migrating artists            ..',
             'Migrating streaming services ..',
             'Migrating music labels       ..',
+            'Migrating customers          ..',
         ], $output);
 
         go(function () use ($entityChannel, $io) {
@@ -142,6 +149,9 @@ class StagingMigrateCommand extends Command
         go(function () use ($entityChannel, $progressBarChannel) {
             $this->musicLabelMigrator->migrate($entityChannel, $progressBarChannel, 3);
         });
+        go(function () use ($entityChannel, $progressBarChannel) {
+            $this->customerMigrator->migrate($entityChannel, $progressBarChannel, 4);
+        });
     }
 
     private function makeProgressBars(array $messages, ConsoleOutput $consoleOutput): array
@@ -150,6 +160,7 @@ class StagingMigrateCommand extends Command
             $progressBar = new ProgressBar($data[0]);
             $progressBar->setFormat('minimal');
             $progressBar->setMessage($data[1]);
+            $progressBar->setRedrawFrequency(100);
             return $progressBar;
         }, \array_map(function (string $message) use ($consoleOutput) {
             $section = $consoleOutput->section();
