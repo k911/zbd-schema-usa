@@ -3,36 +3,37 @@
 namespace App\DataWarehouseStageRepository;
 
 use App\DataWarehouseStage\Artist;
+use App\DataWarehouseStage\Track;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method Artist|null find($id, $lockMode = null, $lockVersion = null)
- * @method Artist|null findOneBy(array $criteria, array $orderBy = null)
- * @method Artist[]    findAll()
- * @method Artist[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Track|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Track|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Track[]    findAll()
+ * @method Track[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ArtistRepository extends ServiceEntityRepository
+class TrackRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, Artist::class);
+        parent::__construct($registry, Track::class);
     }
 
-    public function findByCanonicalName(string $canonicalName): Artist
+    public function findByIsrc(string $isrc): Artist
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.canonicalName = :val')
-            ->setParameter('val', $canonicalName)
+            ->andWhere('a.isrc = :val')
+            ->setParameter('val', $isrc)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function existByCanonicalName(string $canonicalName): bool
+    public function existByIsrc(string $isrc): bool
     {
         return \count($this->createQueryBuilder('a')
-                ->andWhere('a.canonicalName = :val')
-                ->setParameter('val', $canonicalName)
+                ->andWhere('a.isrc = :val')
+                ->setParameter('val', $isrc)
                 ->getQuery()
                 ->getResult()) > 0;
     }

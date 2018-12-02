@@ -8,6 +8,7 @@ use App\DataWarehouseStageMigrator\MusicLabelMigrator;
 use App\DataWarehouseStageMigrator\ReleaseMigrator;
 use App\DataWarehouseStageMigrator\StageEntityPersister;
 use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
+use App\DataWarehouseStageMigrator\TrackMigrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Coroutine\Channel;
 use Symfony\Component\Console\Command\Command;
@@ -53,6 +54,10 @@ class StagingMigrateCommand extends Command
      * @var ReleaseMigrator
      */
     private $releaseMigrator;
+    /**
+     * @var TrackMigrator
+     */
+    private $trackMigrator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -62,6 +67,7 @@ class StagingMigrateCommand extends Command
         MusicLabelMigrator $musicLabelMigrator,
         CustomerMigrator $customerMigrator,
         ReleaseMigrator $releaseMigrator,
+        TrackMigrator $trackMigrator,
         StageEntityPersister $entityPersister
     )
     {
@@ -75,6 +81,7 @@ class StagingMigrateCommand extends Command
         $this->releaseMigrator = $releaseMigrator;
 
         parent::__construct();
+        $this->trackMigrator = $trackMigrator;
     }
 
     protected function configure(): void
@@ -111,6 +118,7 @@ class StagingMigrateCommand extends Command
             'Migrating music labels       ..',
             'Migrating customers          ..',
             'Migrating releases           ..',
+            'Migrating tracks             ..',
         ], $output);
 
         go(function () use ($entityChannel, $io) {
@@ -190,6 +198,14 @@ class StagingMigrateCommand extends Command
                     $this->releaseMigrator->migrate($entityChannel, $progressBarChannel, 5);
                     $schedulerChannel->push('releases');
                     unset($this->releaseMigrator);
+                },
+            ],
+            'tracks' => [
+                'deps' => ['artists', 'releases'],
+                'callable' => function () use ($entityChannel, $progressBarChannel, $schedulerChannel) {
+                    $this->trackMigrator->migrate($entityChannel, $progressBarChannel, 6);
+                    $schedulerChannel->push('tracks');
+                    unset($this->trackMigrator);
                 },
             ],
         ];

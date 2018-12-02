@@ -60,8 +60,8 @@ class CustomerMigrator
                 $channel->push($stageArtist);
             }
             ++$counter;
-            if ($counter % 100 === 0) {
-                $progressBarChannel->push(['inc', $progressBarNo, 100]);
+            if ($counter % 20 === 0) {
+                $progressBarChannel->push(['inc', $progressBarNo, 20]);
             }
         }
 

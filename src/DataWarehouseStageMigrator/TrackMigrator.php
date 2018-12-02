@@ -4,15 +4,17 @@ declare(strict_types=1);
 namespace App\DataWarehouseStageMigrator;
 
 use App\DataWarehouseStageFactory\ReleaseFactory;
+use App\DataWarehouseStageFactory\TrackFactory;
 use App\DataWarehouseStageRepository\ReleaseRepository;
+use App\DataWarehouseStageRepository\TrackRepository;
 use App\Entity\Release;
-use Doctrine\ORM\AbstractQuery;
+use App\Entity\Track;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Generator;
 use Swoole\Coroutine\Channel;
 
-class ReleaseMigrator
+class TrackMigrator
 {
     /**
      * @var ReleaseFactory
@@ -28,8 +30,8 @@ class ReleaseMigrator
     private $releaseRepository;
 
     public function __construct(
-        ReleaseFactory $releaseFactory,
-        ReleaseRepository $releaseRepository,
+        TrackFactory $releaseFactory,
+        TrackRepository $releaseRepository,
         EntityManagerInterface $entityManager
     )
     {
@@ -40,23 +42,22 @@ class ReleaseMigrator
 
     public function migrate(Channel $channel, Channel $progressBarChannel, int $progressBarNo): void
     {
-        $upcRegistry = [];
-        $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', Release::class))->getResult()[0]['count'];
+        $isrcRegistry = [];
+        $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', Track::class))->getResult()[0]['count'];
 
         $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
-        $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Release::class));
+        $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Track::class));
 
         $counter = 0;
         foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
-
-            $upc = $entry->getUpc();
+            $isrc = $entry->getIsrc();
             if (
-                !isset($upcRegistry[$upc]) &&
-                !$this->releaseRepository->existByUpc($upc)) {
-                $upcRegistry[$upc] = true;
-                $stageRelease = $this->releaseFactory->make($entry);
-                $channel->push($stageRelease);
+                !isset($isrcRegistry[$isrc]) &&
+                !$this->releaseRepository->existByIsrc($isrc)) {
+                $isrcRegistry[$isrc] = true;
+                $stageTrack = $this->releaseFactory->make($entry);
+                $channel->push($stageTrack);
                 $this->entityManager->detach($entry);
             }
             ++$counter;
@@ -66,7 +67,7 @@ class ReleaseMigrator
         }
 
         $channel->push('flush');
-        unset($upcRegistry);
+        unset($isrcRegistry);
         $progressBarChannel->push(['finish', $progressBarNo]);
     }
 
