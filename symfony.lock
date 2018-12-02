@@ -2,6 +2,9 @@
     "beberlei/assert": {
         "version": "v3.1.0"
     },
+    "cocur/slugify": {
+        "version": "v3.1"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -79,6 +82,9 @@
     },
     "doctrine/reflection": {
         "version": "v1.0.0"
+    },
+    "eaglewu/swoole-ide-helper": {
+        "version": "dev-master"
     },
     "fzaninotto/faker": {
         "version": "v1.8.0"

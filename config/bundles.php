@@ -1,6 +1,7 @@
 <?php
 
 return [
+    Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle::class => ['all' => true],
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle::class => ['all' => true],
     Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
