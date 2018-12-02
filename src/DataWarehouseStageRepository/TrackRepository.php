@@ -20,7 +20,7 @@ class TrackRepository extends ServiceEntityRepository
         parent::__construct($registry, Track::class);
     }
 
-    public function findByIsrc(string $isrc): Artist
+    public function findByIsrc(string $isrc): Track
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.isrc = :val')

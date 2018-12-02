@@ -20,13 +20,13 @@ class CustomerRepository extends ServiceEntityRepository
         parent::__construct($registry, Customer::class);
     }
 
-    public function findByEmail(string $email): array
+    public function findByEmail(string $email): Customer
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.email = :val')
             ->setParameter('val', $email)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
     }
 
     public function existByEmail(string $email): bool

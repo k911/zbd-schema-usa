@@ -37,6 +37,12 @@ class TrackLike
      */
     private $customer;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\DataWarehouseStage\Track")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $track;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,6 +92,18 @@ class TrackLike
     public function setCustomer(?Customer $customer): self
     {
         $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getTrack(): ?Track
+    {
+        return $this->track;
+    }
+
+    public function setTrack(?Track $track): self
+    {
+        $this->track = $track;
 
         return $this;
     }
