@@ -15,10 +15,15 @@ final class StageEntityPersister
      * @var EntityManagerInterface
      */
     private $stagingEntityManager;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
 
-    public function __construct(EntityManagerInterface $stagingEntityManager)
+    public function __construct(EntityManagerInterface $stagingEntityManager, EntityManagerInterface $entityManager)
     {
         $this->stagingEntityManager = $stagingEntityManager;
+        $this->entityManager = $entityManager;
     }
 
     public function run(Channel $channel, SymfonyStyle $io): void
@@ -39,6 +44,7 @@ final class StageEntityPersister
             if ($data === 'flush') {
                 $this->stagingEntityManager->flush();
                 $this->stagingEntityManager->clear();
+                $this->entityManager->clear();
                 continue;
             }
 
@@ -49,11 +55,13 @@ final class StageEntityPersister
             if ($counter % self::CHUNK_SIZE === 0) {
                 $this->stagingEntityManager->flush();
                 $this->stagingEntityManager->clear();
+                $this->entityManager->clear();
             }
         }
 
         $this->stagingEntityManager->flush();
         $this->stagingEntityManager->clear();
+        $this->entityManager->clear();
 
         $rows = [];
         foreach ($migrated as $entity => $count) {

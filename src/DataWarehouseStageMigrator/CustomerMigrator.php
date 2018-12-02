@@ -48,7 +48,7 @@ class CustomerMigrator
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Customer::class));
         $counter = 0;
-        foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
+        foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
             $stageArtist = $this->customerFactory->make($entry);
             $this->entityManager->detach($entry);
 

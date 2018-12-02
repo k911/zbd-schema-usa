@@ -48,7 +48,7 @@ class MusicLabelMigrator
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', MusicLabel::class));
         $counter = 0;
-        foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
+        foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
             $musicLabel = $this->musicLabelFactory->make($entry);
             $this->entityManager->detach($entry);
 

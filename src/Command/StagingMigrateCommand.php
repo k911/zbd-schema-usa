@@ -100,6 +100,8 @@ class StagingMigrateCommand extends Command
             $io->success('Connected to warehouse staging database!');
         }
 
+        unset($this->entityManager, $this->stagingEntityManager);
+
 //        Runtime::enableCoroutine();
         $entityChannel = new Channel(5000);
         $progressBarChannel = new Channel(1);
@@ -128,11 +130,13 @@ class StagingMigrateCommand extends Command
         go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel, $schedulerChannel) {
             $progressBarsCount = \count($progressBars);
 
+            $counter = 0;
             while (false !== $data = $progressBarChannel->pop()) {
                 /** @var ProgressBar $progressBar */
                 $progressBar = $progressBars[$data[1] - 1];
                 switch ($data[0]) {
                     case 'inc':
+                        ++$counter;
                         $progressBar->advance($data[2]);
                         break;
                     case 'set_max':
@@ -149,6 +153,10 @@ class StagingMigrateCommand extends Command
                     default:
                         $io->error(\sprintf('No handler for %s', $data[0]));
                         exit(1);
+                }
+
+                if ($counter % 10 === 0) {
+                    $entityChannel->push('flush');
                 }
             }
 

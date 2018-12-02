@@ -6,7 +6,6 @@ namespace App\DataWarehouseStageMigrator;
 use App\DataWarehouseStageFactory\ArtistFactory;
 use App\DataWarehouseStageRepository\ArtistRepository;
 use App\Entity\Artist;
-use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Generator;
@@ -26,6 +25,10 @@ class ArtistMigrator
      * @var ArtistRepository
      */
     private $artistRepository;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $stagingEntityManager;
 
     public function __construct(
         ArtistFactory $artistFactory,
@@ -47,7 +50,7 @@ class ArtistMigrator
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Artist::class));
         $counter = 0;
-        foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
+        foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
             $stageArtist = $this->artistFactory->make($entry);
             $this->entityManager->detach($entry);
 
