@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\CustomerRepository")
  */
 class Customer
 {
@@ -19,7 +19,7 @@ class Customer
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private $email;
 

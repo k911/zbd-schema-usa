@@ -17,9 +17,9 @@ class Artist
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
-    private $cannonicalName;
+    private $canonicalName;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -31,14 +31,14 @@ class Artist
         return $this->id;
     }
 
-    public function getCannonicalName(): ?string
+    public function getCanonicalName(): ?string
     {
-        return $this->cannonicalName;
+        return $this->canonicalName;
     }
 
-    public function setCannonicalName(string $cannonicalName): self
+    public function setCanonicalName(string $canonicalName): self
     {
-        $this->cannonicalName = $cannonicalName;
+        $this->canonicalName = $canonicalName;
 
         return $this;
     }

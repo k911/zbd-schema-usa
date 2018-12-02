@@ -9,7 +9,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class StageEntityPersister
 {
-    public const CHUNK_SIZE = 2000;
+    public const CHUNK_SIZE = 5000;
 
     /**
      * @var EntityManagerInterface

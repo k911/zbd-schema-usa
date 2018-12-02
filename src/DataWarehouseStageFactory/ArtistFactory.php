@@ -22,7 +22,7 @@ final class ArtistFactory
     public function make(Artist $artist): DataWarehouseStageArtist
     {
         $stageArtist = new DataWarehouseStageArtist();
-        $stageArtist->setCannonicalName($this->slugify->slugify($artist->getName()));
+        $stageArtist->setCanonicalName($this->slugify->slugify($artist->getName()));
         $stageArtist->setName($artist->getName());
 
         return $stageArtist;

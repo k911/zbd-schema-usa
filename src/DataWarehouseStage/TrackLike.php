@@ -5,7 +5,7 @@ namespace App\DataWarehouseStage;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\TrackLikeRepository")
  */
 class TrackLike
 {

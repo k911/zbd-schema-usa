@@ -46,7 +46,8 @@ class StreamingServiceMigrator
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', StreamingService::class));
         foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
             $streamingService = $this->streamingServiceFactory->make($entry);
-            if (!$this->streamingServiceRepository->existByCanonicalName($streamingService->getCannonicalName())) {
+            $this->entityManager->detach($entry);
+            if (!$this->streamingServiceRepository->existByCanonicalName($streamingService->getCanonicalName())) {
                 $channel->push($streamingService);
             }
             $progressBarChannel->push(['inc', $progressBarNo, 1]);

@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\TrackRepository")
  */
 class Track
 {
@@ -19,7 +19,7 @@ class Track
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=12)
+     * @ORM\Column(type="string", length=12, unique=true)
      */
     private $isrc;
 

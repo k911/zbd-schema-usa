@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\MusicLabelRepository")
  */
 class MusicLabel
 {
@@ -19,9 +19,9 @@ class MusicLabel
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
-    private $cannonicalName;
+    private $canonicalName;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -53,14 +53,14 @@ class MusicLabel
         return $this->id;
     }
 
-    public function getCannonicalName(): ?string
+    public function getCanonicalName(): ?string
     {
-        return $this->cannonicalName;
+        return $this->canonicalName;
     }
 
-    public function setCannonicalName(string $cannonicalName): self
+    public function setCanonicalName(string $canonicalName): self
     {
-        $this->cannonicalName = $cannonicalName;
+        $this->canonicalName = $canonicalName;
 
         return $this;
     }

@@ -22,7 +22,7 @@ final class StreamingServiceFactory
     public function make(StreamingService $streamingService): DataWarehouseStageStreamingService
     {
         $stageArtist = new DataWarehouseStageStreamingService();
-        $stageArtist->setCannonicalName($this->slugify->slugify($streamingService->getName()));
+        $stageArtist->setCanonicalName($this->slugify->slugify($streamingService->getName()));
         $stageArtist->setName($streamingService->getName());
         $stageArtist->setCreatedAt(new \DateTimeImmutable('now'));
 

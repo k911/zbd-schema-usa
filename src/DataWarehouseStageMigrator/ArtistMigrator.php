@@ -6,6 +6,7 @@ namespace App\DataWarehouseStageMigrator;
 use App\DataWarehouseStageFactory\ArtistFactory;
 use App\DataWarehouseStageRepository\ArtistRepository;
 use App\Entity\Artist;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Generator;
@@ -39,14 +40,21 @@ class ArtistMigrator
 
     public function migrate(Channel $channel, Channel $progressBarChannel, int $progressBarNo): void
     {
+        $slugRegistry = [];
         $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', Artist::class))->getResult()[0]['count'];
 
         $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Artist::class));
-        foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
+        foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
             $stageArtist = $this->artistFactory->make($entry);
-            if (!$this->artistRepository->existByCanonicalName($stageArtist->getCannonicalName())) {
+            $this->entityManager->detach($entry);
+
+            $slug = $stageArtist->getCanonicalName();
+            if (
+                !isset($slugRegistry[$slug]) &&
+                !$this->artistRepository->existByCanonicalName($slug)) {
+                $slugRegistry[$slug] = true;
                 $channel->push($stageArtist);
             }
             $progressBarChannel->push(['inc', $progressBarNo, 1]);

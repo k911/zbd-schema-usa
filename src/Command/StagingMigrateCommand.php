@@ -7,6 +7,7 @@ use App\DataWarehouseStageMigrator\StageEntityPersister;
 use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Coroutine\Channel;
+use Swoole\Runtime;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -72,9 +73,9 @@ class StagingMigrateCommand extends Command
             $io->success('Connected to warehouse staging database!');
         }
 
-//        Runtime::enableCoroutine();
-        $entityChannel = new Channel(1);
-        $progressBarChannel = new Channel(1);
+        Runtime::enableCoroutine();
+        $entityChannel = new Channel(5000);
+        $progressBarChannel = new Channel(100);
 
         if (!$output instanceof ConsoleOutput) {
             $io->error('Should never happen.');

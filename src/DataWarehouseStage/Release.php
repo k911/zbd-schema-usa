@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\ReleaseRepository")
  */
 class Release
 {
@@ -25,7 +25,7 @@ class Release
     private $musicLabel;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(type="bigint", unique=true)
      */
     private $upc;
 

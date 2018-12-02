@@ -22,7 +22,7 @@ class StreamingServiceRepository extends ServiceEntityRepository
     public function findByCanonicalName(string $canonicalName): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.cannonicalName = :val')
+            ->andWhere('a.canonicalName = :val')
             ->setParameter('val', $canonicalName)
             ->getQuery()
             ->getResult();
@@ -31,7 +31,7 @@ class StreamingServiceRepository extends ServiceEntityRepository
     public function existByCanonicalName(string $canonicalName): bool
     {
         return \count($this->createQueryBuilder('a')
-                ->andWhere('a.cannonicalName = :val')
+                ->andWhere('a.canonicalName = :val')
                 ->setParameter('val', $canonicalName)
                 ->getQuery()
                 ->getResult()) > 0;
