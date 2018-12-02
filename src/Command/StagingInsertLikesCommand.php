@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\DataWarehouseStageMigrator\StageEntityPersister;
 use App\DataWarehouseStageMigrator\TrackLikeMigrator;
+use App\DataWarehouseStageMigrator\TransactionMigrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Coroutine\Channel;
 use Symfony\Component\Console\Command\Command;
@@ -13,9 +14,9 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class StagingInsertCommand extends Command
+class StagingInsertLikesCommand extends Command
 {
-    protected static $defaultName = 'app:staging:insert';
+    protected static $defaultName = 'app:staging:insert:likes';
     /**
      * @var EntityManagerInterface
      */
@@ -76,8 +77,6 @@ class StagingInsertCommand extends Command
 
         $progressBars = $this->makeProgressBars([
             'Inserting track likes   ..',
-//            'Inserting track streams ..',
-//            'Inserting transactions  ..',
         ], $output);
 
         go(function () use ($entityChannel, $io) {
@@ -91,13 +90,11 @@ class StagingInsertCommand extends Command
         go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
             $progressBarsCount = \count($progressBars);
 
-            $counter = 0;
             while (false !== $data = $progressBarChannel->pop()) {
                 /** @var ProgressBar $progressBar */
                 $progressBar = $progressBars[$data[1] - 1];
                 switch ($data[0]) {
                     case 'inc':
-                        ++$counter;
                         $progressBar->advance($data[2]);
                         break;
                     case 'set_max':
@@ -114,10 +111,6 @@ class StagingInsertCommand extends Command
                     default:
                         $io->error(\sprintf('No handler for %s', $data[0]));
                         exit(1);
-                }
-
-                if ($counter % 10 === 0) {
-                    $entityChannel->push('flush');
                 }
             }
 
