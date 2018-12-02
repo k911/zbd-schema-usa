@@ -4,9 +4,9 @@ namespace App\Command;
 
 use App\DataWarehouseStageMigrator\ArtistMigrator;
 use App\DataWarehouseStageMigrator\StageEntityPersister;
+use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Coroutine\Channel;
-use Swoole\Event;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,20 +34,26 @@ class StagingMigrateCommand extends Command
      * @var StageEntityPersister
      */
     private $entityPersister;
+    /**
+     * @var StreamingServiceMigrator
+     */
+    private $streamingServiceMigrator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityManagerInterface $stagingEntityManager,
         ArtistMigrator $artistMigrator,
+        StreamingServiceMigrator $streamingServiceMigrator,
         StageEntityPersister $entityPersister
     )
     {
         $this->entityManager = $entityManager;
         $this->stagingEntityManager = $stagingEntityManager;
         $this->artistMigrator = $artistMigrator;
+        $this->entityPersister = $entityPersister;
+        $this->streamingServiceMigrator = $streamingServiceMigrator;
 
         parent::__construct();
-        $this->entityPersister = $entityPersister;
     }
 
     protected function configure(): void
@@ -71,7 +77,8 @@ class StagingMigrateCommand extends Command
         $progressBarChannel = new Channel(1);
 
         if (!$output instanceof ConsoleOutput) {
-            dd('wtf');
+            $io->error('Should never happen.');
+            exit(1);
         }
 
         go(function () use ($entityChannel, $io) {
@@ -79,42 +86,51 @@ class StagingMigrateCommand extends Command
         });
 
         go(function () use ($output, $io, $entityChannel, $progressBarChannel) {
+            ProgressBar::setFormatDefinition('minimal', '%message% %current%/%max% [%percent%%] %elapsed:6s%/%estimated:-6s% %memory:6s%');
 
             $section1 = $output->section();
             $section2 = $output->section();
-
-            ProgressBar::setFormatDefinition('minimal', '%message%: %percent%%');
+            $section3 = $output->section();
 
             $progressBar1 = new ProgressBar($section1);
             $progressBar1->setMessage('Migrating artists..');
             $progressBar1->setFormat('minimal');
+
             $progressBar2 = new ProgressBar($section2);
-            $progressBar2->setMessage('Migrating something..');
+            $progressBar2->setMessage('Migrating streaming services..');
             $progressBar2->setFormat('minimal');
 
-            $progressBarsCount = 2;
+            $progressBar3 = new ProgressBar($section3);
+            $progressBar3->setMessage('Migrating something..');
+            $progressBar3->setFormat('minimal');
+
             $progressBars = [
-                1 => $progressBar1,
-                2 => $progressBar2,
+                $progressBar1,
+                $progressBar2,
+                $progressBar3,
             ];
+            $progressBarsCount = \count($progressBars);
 
             while (false !== $data = $progressBarChannel->pop()) {
+                /** @var ProgressBar $progressBar */
+                $progressBar = $progressBars[$data[1] - 1];
                 switch ($data[0]) {
                     case 'inc':
-                        $progressBars[$data[1]]->advance($data[2]);
+                        $progressBar->advance($data[2]);
                         break;
                     case 'set_max':
-                        $progressBars[$data[1]]->setMaxSteps($data[2]);
+                        $progressBar->setMaxSteps($data[2]);
                         break;
                     case 'finish':
-                        $progressBars[$data[1]]->finish();
+                        $progressBar->finish();
                         --$progressBarsCount;
-                        if($progressBarsCount === 0) {
+                        if ($progressBarsCount === 0) {
                             $progressBarChannel->close();
                         }
                         break;
                     default:
-                        dd(\sprintf('No handler for %s', $data[0]));
+                        $io->error(\sprintf('No handler for %s', $data[0]));
+                        exit(1);
                 }
             }
 
@@ -125,16 +141,20 @@ class StagingMigrateCommand extends Command
         });
 
         go(function () use ($entityChannel, $progressBarChannel) {
-            $this->artistMigrator->migrate($entityChannel, $progressBarChannel);
+            $this->artistMigrator->migrate($entityChannel, $progressBarChannel, 1);
+        });
+        go(function () use ($entityChannel, $progressBarChannel) {
+            $this->streamingServiceMigrator->migrate($entityChannel, $progressBarChannel, 2);
         });
         go(function () use ($progressBarChannel) {
             $max = 1000;
-            $progressBarChannel->push(['set_max', 2, $max]);
+            $progressBarNo = 3;
+            $progressBarChannel->push(['set_max', $progressBarNo, $max]);
             while ($max > 0) {
-                $progressBarChannel->push(['inc', 2, 1]);
+                $progressBarChannel->push(['inc', $progressBarNo, 1]);
                 --$max;
             }
-            $progressBarChannel->push(['finish', 2, 1]);
+            $progressBarChannel->push(['finish', $progressBarNo, 1]);
         });
     }
 }

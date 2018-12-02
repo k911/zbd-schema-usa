@@ -37,11 +37,11 @@ class ArtistMigrator
         $this->artistRepository = $artistRepository;
     }
 
-    public function migrate(Channel $channel, Channel $progressBarChannel): void
+    public function migrate(Channel $channel, Channel $progressBarChannel, int $progressBarNo): void
     {
         $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', Artist::class))->getResult()[0]['count'];
 
-        $progressBarChannel->push(['set_max', 1, (int)$count]);
+        $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Artist::class));
         foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
@@ -49,11 +49,11 @@ class ArtistMigrator
             if (!$this->artistRepository->existByCanonicalName($stageArtist->getCannonicalName())) {
                 $channel->push($stageArtist);
             }
-            $progressBarChannel->push(['inc', 1, 1]);
+            $progressBarChannel->push(['inc', $progressBarNo, 1]);
         }
 
         $this->entityManager->clear();
-        $progressBarChannel->push(['finish', 1]);
+        $progressBarChannel->push(['finish', $progressBarNo]);
     }
 
     private function getEntries(IterableResult $result): Generator

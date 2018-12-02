@@ -3,11 +3,6 @@ Streaming Services - Schema USA
 
 ## Creating fixtures
 
-docker-compose run console doctrine:database:drop --force
-docker-compose run console doctrine:database:create
-docker-compose run console doctrine:migrations:migrate -n
-docker-compose run console doctrine:fixtures:load
-
 1. Build docker images and start mysql and pma:
 
     ```bash
@@ -58,3 +53,17 @@ docker-compose run console doctrine:fixtures:load
     ```
 
 5. Run migrations script
+
+    ```bash
+    docker-compose run console app:staging:migrate
+    ```
+
+## Fast usage
+
+```bash
+docker-compose run console doctrine:database:drop --force
+docker-compose run console doctrine:database:create
+docker-compose run console doctrine:migrations:migrate -n
+docker-compose run console doctrine:fixtures:load -n
+docker-compose run console app:staging:migrate
+```

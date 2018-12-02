@@ -5,7 +5,7 @@ namespace App\DataWarehouseStage;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\ArtistRepository")
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\ArtistRepository")
  */
 class Artist
 {

@@ -5,7 +5,7 @@ namespace App\DataWarehouseStage;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\StreamingServiceRepository")
+ * @ORM\Entity(repositoryClass="App\DataWarehouseStageRepository\StreamingServiceRepository")
  */
 class StreamingService
 {
