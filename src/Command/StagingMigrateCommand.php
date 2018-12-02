@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\DataWarehouseStageMigrator\ArtistMigrator;
+use App\DataWarehouseStageMigrator\MusicLabelMigrator;
 use App\DataWarehouseStageMigrator\StageEntityPersister;
 use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,12 +40,17 @@ class StagingMigrateCommand extends Command
      * @var StreamingServiceMigrator
      */
     private $streamingServiceMigrator;
+    /**
+     * @var MusicLabelMigrator
+     */
+    private $musicLabelMigrator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityManagerInterface $stagingEntityManager,
         ArtistMigrator $artistMigrator,
         StreamingServiceMigrator $streamingServiceMigrator,
+        MusicLabelMigrator $musicLabelMigrator,
         StageEntityPersister $entityPersister
     )
     {
@@ -53,6 +59,7 @@ class StagingMigrateCommand extends Command
         $this->artistMigrator = $artistMigrator;
         $this->entityPersister = $entityPersister;
         $this->streamingServiceMigrator = $streamingServiceMigrator;
+        $this->musicLabelMigrator = $musicLabelMigrator;
 
         parent::__construct();
     }
@@ -73,7 +80,7 @@ class StagingMigrateCommand extends Command
             $io->success('Connected to warehouse staging database!');
         }
 
-        Runtime::enableCoroutine();
+//        Runtime::enableCoroutine();
         $entityChannel = new Channel(5000);
         $progressBarChannel = new Channel(100);
 
@@ -82,34 +89,19 @@ class StagingMigrateCommand extends Command
             exit(1);
         }
 
+        ProgressBar::setFormatDefinition('minimal', '%message% %current%/%max% [%percent%%] %elapsed:6s%/%estimated:-6s% %memory:6s%');
+
+        $progressBars = $this->makeProgressBars([
+            'Migrating artists            ..',
+            'Migrating streaming services ..',
+            'Migrating music labels       ..',
+        ], $output);
+
         go(function () use ($entityChannel, $io) {
             $this->entityPersister->run($entityChannel, $io);
         });
 
-        go(function () use ($output, $io, $entityChannel, $progressBarChannel) {
-            ProgressBar::setFormatDefinition('minimal', '%message% %current%/%max% [%percent%%] %elapsed:6s%/%estimated:-6s% %memory:6s%');
-
-            $section1 = $output->section();
-            $section2 = $output->section();
-            $section3 = $output->section();
-
-            $progressBar1 = new ProgressBar($section1);
-            $progressBar1->setMessage('Migrating artists..');
-            $progressBar1->setFormat('minimal');
-
-            $progressBar2 = new ProgressBar($section2);
-            $progressBar2->setMessage('Migrating streaming services..');
-            $progressBar2->setFormat('minimal');
-
-            $progressBar3 = new ProgressBar($section3);
-            $progressBar3->setMessage('Migrating something..');
-            $progressBar3->setFormat('minimal');
-
-            $progressBars = [
-                $progressBar1,
-                $progressBar2,
-                $progressBar3,
-            ];
+        go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
             $progressBarsCount = \count($progressBars);
 
             while (false !== $data = $progressBarChannel->pop()) {
@@ -147,15 +139,21 @@ class StagingMigrateCommand extends Command
         go(function () use ($entityChannel, $progressBarChannel) {
             $this->streamingServiceMigrator->migrate($entityChannel, $progressBarChannel, 2);
         });
-        go(function () use ($progressBarChannel) {
-            $max = 1000;
-            $progressBarNo = 3;
-            $progressBarChannel->push(['set_max', $progressBarNo, $max]);
-            while ($max > 0) {
-                $progressBarChannel->push(['inc', $progressBarNo, 1]);
-                --$max;
-            }
-            $progressBarChannel->push(['finish', $progressBarNo, 1]);
+        go(function () use ($entityChannel, $progressBarChannel) {
+            $this->musicLabelMigrator->migrate($entityChannel, $progressBarChannel, 3);
         });
+    }
+
+    private function makeProgressBars(array $messages, ConsoleOutput $consoleOutput): array
+    {
+        return \array_map(function (array $data) {
+            $progressBar = new ProgressBar($data[0]);
+            $progressBar->setFormat('minimal');
+            $progressBar->setMessage($data[1]);
+            return $progressBar;
+        }, \array_map(function (string $message) use ($consoleOutput) {
+            $section = $consoleOutput->section();
+            return [$section, $message];
+        }, $messages));
     }
 }
