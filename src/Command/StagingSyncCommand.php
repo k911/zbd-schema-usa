@@ -18,9 +18,9 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class StagingMigrateCommand extends Command
+class StagingSyncCommand extends Command
 {
-    protected static $defaultName = 'app:staging:migrate';
+    protected static $defaultName = 'app:staging:sync';
 
     /**
      * @var EntityManagerInterface
@@ -87,7 +87,7 @@ class StagingMigrateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Add a short description for your command');
+            ->setDescription('Synchronizes data between source database and data warehouse staging database. Adds only new ones.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -115,12 +115,12 @@ class StagingMigrateCommand extends Command
         ProgressBar::setFormatDefinition('minimal', '%message% %current%/%max% [%percent%%] %elapsed:6s%/%estimated:-6s% %memory:6s%');
 
         $progressBars = $this->makeProgressBars([
-            'Migrating artists            ..',
-            'Migrating streaming services ..',
-            'Migrating music labels       ..',
-            'Migrating customers          ..',
-            'Migrating releases           ..',
-            'Migrating tracks             ..',
+            'Syncing artists            ..',
+            'Syncing streaming services ..',
+            'Syncing music labels       ..',
+            'Syncing customers          ..',
+            'Syncing releases           ..',
+            'Syncing tracks             ..',
         ], $output);
 
         go(function () use ($entityChannel, $io) {
