@@ -36,7 +36,12 @@ final class StageEntityPersister
         ];
         $counter = 0;
         while (false !== $data = $channel->pop()) {
-//            dump('adding');
+            if ($data === 'flush') {
+                $this->stagingEntityManager->flush();
+                $this->stagingEntityManager->clear();
+                continue;
+            }
+
             $this->stagingEntityManager->persist($data);
             ++$counter;
             ++$migrated[\get_class($data)];

@@ -47,6 +47,7 @@ class MusicLabelMigrator
         $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', MusicLabel::class));
+        $counter = 0;
         foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
             $musicLabel = $this->musicLabelFactory->make($entry);
             $this->entityManager->detach($entry);
@@ -58,10 +59,14 @@ class MusicLabelMigrator
                 $slugRegistry[$slug] = true;
                 $channel->push($musicLabel);
             }
-            $progressBarChannel->push(['inc', $progressBarNo, 1]);
+            ++$counter;
+            if ($counter % 100 === 0) {
+                $progressBarChannel->push(['inc', $progressBarNo, 100]);
+            }
         }
 
-        $this->entityManager->clear();
+        $channel->push('flush');
+        unset($slugRegistry);
         $progressBarChannel->push(['finish', $progressBarNo]);
     }
 

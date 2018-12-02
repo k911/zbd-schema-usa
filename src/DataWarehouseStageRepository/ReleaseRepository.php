@@ -2,37 +2,38 @@
 
 namespace App\DataWarehouseStageRepository;
 
-use App\DataWarehouseStage\MusicLabel;
+use App\DataWarehouseStage\Artist;
+use App\DataWarehouseStage\Release;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
- * @method MusicLabel|null find($id, $lockMode = null, $lockVersion = null)
- * @method MusicLabel|null findOneBy(array $criteria, array $orderBy = null)
- * @method MusicLabel[]    findAll()
- * @method MusicLabel[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Release|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Release|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Release[]    findAll()
+ * @method Release[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MusicLabelRepository extends ServiceEntityRepository
+class ReleaseRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
     {
-        parent::__construct($registry, MusicLabel::class);
+        parent::__construct($registry, Release::class);
     }
 
-    public function findByCanonicalName(string $canonicalName): ?MusicLabel
+    public function findByUpc(int $upc): ?Release
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.canonicalName = :val')
-            ->setParameter('val', $canonicalName)
+            ->andWhere('a.upc = :val')
+            ->setParameter('val', $upc)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function existByCanonicalName(string $canonicalName): bool
+    public function existByUpc(int $upc): bool
     {
         return \count($this->createQueryBuilder('a')
-                ->andWhere('a.canonicalName = :val')
-                ->setParameter('val', $canonicalName)
+                ->andWhere('a.upc = :val')
+                ->setParameter('val', $upc)
                 ->getQuery()
                 ->getResult()) > 0;
     }

@@ -47,6 +47,7 @@ class CustomerMigrator
         $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Customer::class));
+        $counter = 0;
         foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
             $stageArtist = $this->customerFactory->make($entry);
             $this->entityManager->detach($entry);
@@ -58,10 +59,14 @@ class CustomerMigrator
                 $emailRegistry[$slug] = true;
                 $channel->push($stageArtist);
             }
-            $progressBarChannel->push(['inc', $progressBarNo, 1]);
+            ++$counter;
+            if ($counter % 100 === 0) {
+                $progressBarChannel->push(['inc', $progressBarNo, 100]);
+            }
         }
 
-        $this->entityManager->clear();
+        $channel->push('flush');
+        unset($emailRegistry);
         $progressBarChannel->push(['finish', $progressBarNo]);
     }
 

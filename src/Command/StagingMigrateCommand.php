@@ -5,6 +5,7 @@ namespace App\Command;
 use App\DataWarehouseStageMigrator\ArtistMigrator;
 use App\DataWarehouseStageMigrator\CustomerMigrator;
 use App\DataWarehouseStageMigrator\MusicLabelMigrator;
+use App\DataWarehouseStageMigrator\ReleaseMigrator;
 use App\DataWarehouseStageMigrator\StageEntityPersister;
 use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,6 +49,10 @@ class StagingMigrateCommand extends Command
      * @var CustomerMigrator
      */
     private $customerMigrator;
+    /**
+     * @var ReleaseMigrator
+     */
+    private $releaseMigrator;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -56,6 +61,7 @@ class StagingMigrateCommand extends Command
         StreamingServiceMigrator $streamingServiceMigrator,
         MusicLabelMigrator $musicLabelMigrator,
         CustomerMigrator $customerMigrator,
+        ReleaseMigrator $releaseMigrator,
         StageEntityPersister $entityPersister
     )
     {
@@ -66,6 +72,7 @@ class StagingMigrateCommand extends Command
         $this->streamingServiceMigrator = $streamingServiceMigrator;
         $this->musicLabelMigrator = $musicLabelMigrator;
         $this->customerMigrator = $customerMigrator;
+        $this->releaseMigrator = $releaseMigrator;
 
         parent::__construct();
     }
@@ -88,7 +95,8 @@ class StagingMigrateCommand extends Command
 
 //        Runtime::enableCoroutine();
         $entityChannel = new Channel(5000);
-        $progressBarChannel = new Channel(100);
+        $progressBarChannel = new Channel(1);
+        $schedulerChannel = new Channel(1);
 
         if (!$output instanceof ConsoleOutput) {
             $io->error('Should never happen.');
@@ -102,13 +110,14 @@ class StagingMigrateCommand extends Command
             'Migrating streaming services ..',
             'Migrating music labels       ..',
             'Migrating customers          ..',
+            'Migrating releases           ..',
         ], $output);
 
         go(function () use ($entityChannel, $io) {
             $this->entityPersister->run($entityChannel, $io);
         });
 
-        go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
+        go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel, $schedulerChannel) {
             $progressBarsCount = \count($progressBars);
 
             while (false !== $data = $progressBarChannel->pop()) {
@@ -124,6 +133,7 @@ class StagingMigrateCommand extends Command
                     case 'finish':
                         $progressBar->finish();
                         --$progressBarsCount;
+                        unset($progressBar, $progressBars[$data[1] - 1]);
                         if ($progressBarsCount === 0) {
                             $progressBarChannel->close();
                         }
@@ -138,19 +148,78 @@ class StagingMigrateCommand extends Command
             $io->success('Processing finished.');
 
             $entityChannel->close();
+            $schedulerChannel->close();
         });
 
-        go(function () use ($entityChannel, $progressBarChannel) {
-            $this->artistMigrator->migrate($entityChannel, $progressBarChannel, 1);
-        });
-        go(function () use ($entityChannel, $progressBarChannel) {
-            $this->streamingServiceMigrator->migrate($entityChannel, $progressBarChannel, 2);
-        });
-        go(function () use ($entityChannel, $progressBarChannel) {
-            $this->musicLabelMigrator->migrate($entityChannel, $progressBarChannel, 3);
-        });
-        go(function () use ($entityChannel, $progressBarChannel) {
-            $this->customerMigrator->migrate($entityChannel, $progressBarChannel, 4);
+        $migrators = [
+            'artists' => [
+                'deps' => [],
+                'callable' => function () use ($entityChannel, $progressBarChannel, $schedulerChannel) {
+                    $this->artistMigrator->migrate($entityChannel, $progressBarChannel, 1);
+                    $schedulerChannel->push('artists');
+                    unset($this->artistMigrator);
+                },
+            ],
+            'streaming_services' => [
+                'deps' => [],
+                'callable' => function () use ($entityChannel, $progressBarChannel, $schedulerChannel) {
+                    $this->streamingServiceMigrator->migrate($entityChannel, $progressBarChannel, 2);
+                    $schedulerChannel->push('streaming_services');
+                    unset($this->streamingServiceMigrator);
+                },
+            ],
+            'music_labels' => [
+                'deps' => [],
+                'callable' => function () use ($entityChannel, $progressBarChannel, $schedulerChannel) {
+                    $this->musicLabelMigrator->migrate($entityChannel, $progressBarChannel, 3);
+                    $schedulerChannel->push('music_labels');
+                    unset($this->musicLabelMigrator);
+                },
+            ],
+            'customers' => [
+                'deps' => [],
+                'callable' => function () use ($entityChannel, $progressBarChannel, $schedulerChannel) {
+                    $this->customerMigrator->migrate($entityChannel, $progressBarChannel, 4);
+                    $schedulerChannel->push('customers');
+                    unset($this->customerMigrator);
+                },
+            ],
+            'releases' => [
+                'deps' => ['artists'],
+                'callable' => function () use ($entityChannel, $progressBarChannel, $schedulerChannel) {
+                    $this->releaseMigrator->migrate($entityChannel, $progressBarChannel, 5);
+                    $schedulerChannel->push('releases');
+                    unset($this->releaseMigrator);
+                },
+            ],
+        ];
+
+        go(function () use ($schedulerChannel, $migrators) {
+            $ran = [];
+            $finished = [];
+
+            do {
+                foreach ($migrators as $name => ['callable' => $migrator, 'deps' => $deps]) {
+                    if (isset($ran[$name])) {
+                        continue;
+                    }
+
+                    foreach ($deps as $dep) {
+                        if (!isset($finished[$dep])) {
+                            continue 2;
+                        }
+                    }
+
+                    $ran[$name] = true;
+                    go($migrator);
+                }
+
+                $data = $schedulerChannel->pop();
+                if (\is_string($data)) {
+                    $finished[$data] = true;
+                }
+
+            } while (\count($ran) !== \count($migrators));
         });
     }
 
@@ -161,6 +230,7 @@ class StagingMigrateCommand extends Command
             $progressBar->setFormat('minimal');
             $progressBar->setMessage($data[1]);
             $progressBar->setRedrawFrequency(100);
+            $progressBar->start(10000);
             return $progressBar;
         }, \array_map(function (string $message) use ($consoleOutput) {
             $section = $consoleOutput->section();

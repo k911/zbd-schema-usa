@@ -44,16 +44,20 @@ class StreamingServiceMigrator
         $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
         $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', StreamingService::class));
+
+        $counter = 0;
         foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
             $streamingService = $this->streamingServiceFactory->make($entry);
             $this->entityManager->detach($entry);
             if (!$this->streamingServiceRepository->existByCanonicalName($streamingService->getCanonicalName())) {
                 $channel->push($streamingService);
             }
-            $progressBarChannel->push(['inc', $progressBarNo, 1]);
+            ++$counter;
+            if ($counter % 100 === 0) {
+                $progressBarChannel->push(['inc', $progressBarNo, 100]);
+            }
         }
-
-        $this->entityManager->clear();
+        $channel->push('flush');
         $progressBarChannel->push(['finish', $progressBarNo]);
     }
 

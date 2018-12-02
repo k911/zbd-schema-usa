@@ -3,60 +3,61 @@ declare(strict_types=1);
 
 namespace App\DataWarehouseStageMigrator;
 
-use App\DataWarehouseStageFactory\ArtistFactory;
-use App\DataWarehouseStageRepository\ArtistRepository;
-use App\Entity\Artist;
+use App\DataWarehouseStageFactory\ReleaseFactory;
+use App\DataWarehouseStageRepository\ReleaseRepository;
+use App\Entity\Release;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Internal\Hydration\IterableResult;
 use Generator;
 use Swoole\Coroutine\Channel;
 
-class ArtistMigrator
+class ReleaseMigrator
 {
     /**
-     * @var ArtistFactory
+     * @var ReleaseFactory
      */
-    private $artistFactory;
+    private $releaseFactory;
     /**
      * @var EntityManagerInterface
      */
     private $entityManager;
     /**
-     * @var ArtistRepository
+     * @var ReleaseRepository
      */
-    private $artistRepository;
+    private $releaseRepository;
 
     public function __construct(
-        ArtistFactory $artistFactory,
-        ArtistRepository $artistRepository,
+        ReleaseFactory $releaseFactory,
+        ReleaseRepository $releaseRepository,
         EntityManagerInterface $entityManager
     )
     {
-        $this->artistFactory = $artistFactory;
+        $this->releaseFactory = $releaseFactory;
         $this->entityManager = $entityManager;
-        $this->artistRepository = $artistRepository;
+        $this->releaseRepository = $releaseRepository;
     }
 
     public function migrate(Channel $channel, Channel $progressBarChannel, int $progressBarNo): void
     {
-        $slugRegistry = [];
-        $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', Artist::class))->getResult()[0]['count'];
+        $upcRegistry = [];
+        $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', Release::class))->getResult()[0]['count'];
 
         $progressBarChannel->push(['set_max', $progressBarNo, (int)$count]);
 
-        $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Artist::class));
+        $entityCollectionQuery = $this->entityManager->createQuery(\sprintf('SELECT e FROM %s e', Release::class));
+
         $counter = 0;
-        foreach ($this->getEntries($entityCollectionQuery->iterate(null, AbstractQuery::HYDRATE_SIMPLEOBJECT)) as $entry) {
-            $stageArtist = $this->artistFactory->make($entry);
+        foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
+            $stageRelease = $this->releaseFactory->make($entry);
             $this->entityManager->detach($entry);
 
-            $slug = $stageArtist->getCanonicalName();
+            $upc = $stageRelease->getUpc();
             if (
-                !isset($slugRegistry[$slug]) &&
-                !$this->artistRepository->existByCanonicalName($slug)) {
-                $slugRegistry[$slug] = true;
-                $channel->push($stageArtist);
+                !isset($upcRegistry[$upc]) &&
+                !$this->releaseRepository->existByUpc($upc)) {
+                $upcRegistry[$upc] = true;
+                $channel->push($stageRelease);
             }
             ++$counter;
             if ($counter % 100 === 0) {
@@ -65,7 +66,7 @@ class ArtistMigrator
         }
 
         $channel->push('flush');
-        unset($slugRegistry);
+        unset($upcRegistry);
         $progressBarChannel->push(['finish', $progressBarNo]);
     }
 
