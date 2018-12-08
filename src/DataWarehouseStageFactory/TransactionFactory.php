@@ -47,7 +47,7 @@ final class TransactionFactory
             $stageTransaction->setProvider($provider);
             $stageTransaction->setType($releaseOrder->getType());
             $stageTransaction->setCreatedAt($transaction->getCreatedAt());
-            $stageTransaction->setFinishedAt(new \DateTimeImmutable('now')); // TODO: CHANGE
+            $stageTransaction->setFinishedAt($transaction->getFinishedAt());
             yield $stageTransaction;
         }
     }

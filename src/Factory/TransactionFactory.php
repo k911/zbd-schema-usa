@@ -30,7 +30,7 @@ final class TransactionFactory
         $startedAt = $this->faker->dateTimeThisDecade('-3 days');
         $transaction->setCreatedAt(\DateTimeImmutable::createFromMutable($startedAt));
 
-        if ($this->faker->boolean) {
+        if ($transaction->isCompleted()) {
             $updatedAtMax = clone $startedAt;
             $updatedAtMax = $updatedAtMax->modify('+2 days');
 
@@ -41,7 +41,7 @@ final class TransactionFactory
             $endedAtMax = clone $updatedAtMax;
             $endedAtMax = $endedAtMax->modify('+1 days');
 
-            $transaction->setUpdatedAt(\DateTimeImmutable::createFromMutable(
+            $transaction->setFinishedAt(\DateTimeImmutable::createFromMutable(
                 $this->faker->dateTimeBetween($updatedAtMax, $endedAtMax)
             ));
         }

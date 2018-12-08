@@ -45,7 +45,7 @@ final class TrackFactory
         $warehouseTrack->setDuration($track->getDuration());
         $warehouseTrack->setEdit($track->getEdit());
         $warehouseTrack->setTitle($track->getTitle());
-        $warehouseTrack->setCreatedAt(new \DateTimeImmutable('now')); // TODO: CHANGE
+        $warehouseTrack->setCreatedAt($track->getCreatedAt());
         $warehouseTrack->setIsrc($track->getIsrc());
 
         return $warehouseTrack;

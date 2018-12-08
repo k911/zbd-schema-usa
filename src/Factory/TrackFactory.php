@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Factory;
 
-use App\Entity\Artist;
 use App\Entity\Release;
 use App\Entity\Track;
 use App\Random\Random;
@@ -47,6 +46,9 @@ final class TrackFactory
         $track->setEdit($edit);
         $name = \sprintf('%s (%s)', $this->randomTrackName($this->faker), self::EDIT_TYPES[$edit]);
         $track->setTitle($name);
+        $track->setCreatedAt(\DateTimeImmutable::createFromMutable(
+            $this->faker->dateTime()
+        ));
         $track->setIsrc($isrc);
 
         return $track;

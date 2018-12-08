@@ -33,6 +33,11 @@ class StreamingService
      */
     private $musicLabelStreamingServiceContracts;
 
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $createdAt;
+
     public function __construct()
     {
         $this->musicLabelStreamingServiceContracts = new ArrayCollection();
@@ -94,6 +99,18 @@ class StreamingService
                 $musicLabelStreamingServiceContract->setStreamingService(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

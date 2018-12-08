@@ -63,6 +63,11 @@ class Customer
      */
     private $transactions;
 
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $birthDate;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
@@ -196,6 +201,18 @@ class Customer
                 $transaction->setCustomer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBirthDate(): ?\DateTimeImmutable
+    {
+        return $this->birthDate;
+    }
+
+    public function setBirthDate(\DateTimeImmutable $birthDate): self
+    {
+        $this->birthDate = $birthDate;
 
         return $this;
     }

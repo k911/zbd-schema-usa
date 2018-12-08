@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App\Factory;
 
-use App\DataFixtures\CustomerFixtures;
-use App\Entity\Customer;
 use App\Entity\StreamingService;
 use Faker\Generator;
 
@@ -26,6 +24,9 @@ final class StreamingServiceFactory
 
         $service->setName($name);
         $service->setUrl(\sprintf('%s://%s.%s', $this->faker->randomElement(['http', 'https']), $this->parseName($name), $this->faker->tld));
+        $service->setCreatedAt(\DateTimeImmutable::createFromMutable(
+            $this->faker->dateTime('-1 year')
+        ));
 
         return $service;
     }

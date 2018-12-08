@@ -11,9 +11,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Transaction
 {
+    public const STATUS_COMPLETED = 'completed';
+
     public const STATUSES = [
         'new',
-        'completed',
+        self::STATUS_COMPLETED,
         'in-progress',
         'cancelled',
     ];
@@ -106,6 +108,11 @@ class Transaction
         $this->status = $status;
 
         return $this;
+    }
+
+    public function isCompleted(): bool
+    {
+        return self::STATUS_COMPLETED === $this->status;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable

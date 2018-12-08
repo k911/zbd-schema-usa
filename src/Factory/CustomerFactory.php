@@ -27,8 +27,12 @@ final class CustomerFactory
         $customer->setCity($this->faker->city);
         $customer->setCountry($this->faker->countryISOAlpha3);
         $customer->setEmail($this->faker->email);
+        $birthDate = $this->faker->dateTimeBetween('-80 years', '-18 years');
         $customer->setJoinedAt(\DateTimeImmutable::createFromMutable(
-            $this->faker->dateTime()
+            $this->faker->dateTimeBetween($birthDate)
+        ));
+        $customer->setBirthDate(\DateTimeImmutable::createFromMutable(
+            $birthDate
         ));
         $customer->setPhone($this->faker->phoneNumber);
         $customer->setPasswordHash($this->faker->sha256);

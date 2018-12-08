@@ -13,7 +13,7 @@ final class CustomerFactory
     public function make(Customer $customer): DataWarehouseStageCustomer
     {
         $stageCustomer = new DataWarehouseStageCustomer();
-        $stageCustomer->setBirthDate($customer->getJoinedAt()); // TODO: CHANGE
+        $stageCustomer->setBirthDate($customer->getBirthDate());
         $stageCustomer->setJoinedAt($customer->getJoinedAt());
         $stageCustomer->setEmail($customer->getEmail());
         $stageCustomer->setName($customer->getName());
