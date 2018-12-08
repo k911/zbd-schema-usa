@@ -55,7 +55,11 @@ Streaming Services - Schema USA
 5. Run migrations script
 
     ```bash
-    docker-compose run console app:staging:migrate
+    docker-compose run console app:staging:sync
+    # and then you can in parallel
+    docker-compose run console app:staging:likes
+    docker-compose run console app:staging:streams
+    docker-compose run console app:staging:transactions
     ```
 
 ## Fast usage
@@ -65,5 +69,8 @@ docker-compose run console doctrine:database:drop --force
 docker-compose run console doctrine:database:create
 docker-compose run console doctrine:migrations:migrate -n
 docker-compose run console doctrine:fixtures:load -n
-docker-compose run console app:staging:migrate
+docker-compose run console app:staging:sync
+docker-compose run console app:staging:likes
+docker-compose run console app:staging:streams
+docker-compose run console app:staging:transactions
 ```

@@ -19,13 +19,13 @@ class StreamingServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, StreamingService::class);
     }
 
-    public function findByCanonicalName(string $canonicalName): array
+    public function findByCanonicalName(string $canonicalName): ?StreamingService
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.canonicalName = :val')
             ->setParameter('val', $canonicalName)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult();
     }
 
     public function existByCanonicalName(string $canonicalName): bool
