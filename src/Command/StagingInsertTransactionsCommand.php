@@ -85,7 +85,12 @@ class StagingInsertTransactionsCommand extends Command
         });
 
         go(function () use ($entityChannel, $progressBarChannel) {
-            $this->transactionMigrator->migrate($entityChannel, $progressBarChannel, 1);
+            try {
+                $this->transactionMigrator->migrate($entityChannel, $progressBarChannel, 1);
+            } catch (\Throwable $exception) {
+                dump($exception);
+                $progressBarChannel->close();
+            }
         });
 
         go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {

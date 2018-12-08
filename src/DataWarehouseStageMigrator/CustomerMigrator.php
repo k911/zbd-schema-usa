@@ -62,6 +62,7 @@ class CustomerMigrator
             ++$counter;
             if ($counter % 20 === 0) {
                 $progressBarChannel->push(['inc', $progressBarNo, 20]);
+                $channel->push('flush');
             }
         }
 

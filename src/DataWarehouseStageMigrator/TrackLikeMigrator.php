@@ -46,6 +46,7 @@ class TrackLikeMigrator
             ++$counter;
             if ($counter % 100 === 0) {
                 $progressBarChannel->push(['inc', $progressBarNo, 100]);
+                $channel->push('flush');
             }
         }
 

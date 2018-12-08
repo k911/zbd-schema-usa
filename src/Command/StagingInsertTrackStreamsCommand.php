@@ -86,7 +86,12 @@ class StagingInsertTrackStreamsCommand extends Command
         });
 
         go(function () use ($entityChannel, $progressBarChannel) {
-            $this->trackStreamMigrator->migrate($entityChannel, $progressBarChannel, 1);
+            try {
+                $this->trackStreamMigrator->migrate($entityChannel, $progressBarChannel, 1);
+            } catch (\Throwable $exception) {
+                dump($exception);
+                $progressBarChannel->close();
+            }
         });
 
         go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {

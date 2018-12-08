@@ -9,7 +9,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class StageEntityPersister
 {
-    public const CHUNK_SIZE = 10000;
+//    public const CHUNK_SIZE = 5000;
 
     /**
      * @var EntityManagerInterface
@@ -42,9 +42,12 @@ final class StageEntityPersister
         $counter = 0;
         while (false !== $data = $channel->pop()) {
             if ($data === 'flush') {
-                $this->stagingEntityManager->flush();
-                $this->stagingEntityManager->clear();
-                $this->entityManager->clear();
+                if ($counter > 0) {
+                    $this->stagingEntityManager->flush();
+                    $this->stagingEntityManager->clear();
+                    $this->entityManager->clear();
+                    $counter = 0;
+                }
                 continue;
             }
 
@@ -52,11 +55,11 @@ final class StageEntityPersister
             ++$counter;
             ++$migrated[\get_class($data)];
 
-            if ($counter % self::CHUNK_SIZE === 0) {
-                $this->stagingEntityManager->flush();
-                $this->stagingEntityManager->clear();
-                $this->entityManager->clear();
-            }
+//            if ($counter % self::CHUNK_SIZE === 0) {
+//                $this->stagingEntityManager->flush();
+//                $this->stagingEntityManager->clear();
+//                $this->entityManager->clear();
+//            }
         }
 
         $this->stagingEntityManager->flush();

@@ -11,6 +11,7 @@ use App\DataWarehouseStageMigrator\StreamingServiceMigrator;
 use App\DataWarehouseStageMigrator\TrackMigrator;
 use Doctrine\ORM\EntityManagerInterface;
 use Swoole\Coroutine\Channel;
+use Swoole\Runtime;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -130,13 +131,13 @@ class StagingSyncCommand extends Command
         go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel, $schedulerChannel) {
             $progressBarsCount = \count($progressBars);
 
-            $counter = 0;
+//            $counter = 0;
             while (false !== $data = $progressBarChannel->pop()) {
                 /** @var ProgressBar $progressBar */
                 $progressBar = $progressBars[$data[1] - 1];
                 switch ($data[0]) {
                     case 'inc':
-                        ++$counter;
+//                        ++$counter;
                         $progressBar->advance($data[2]);
                         break;
                     case 'set_max':
@@ -155,9 +156,9 @@ class StagingSyncCommand extends Command
                         exit(1);
                 }
 
-                if ($counter % 10 === 0) {
-                    $entityChannel->push('flush');
-                }
+//                if ($counter % 10 === 0) {
+//                    $entityChannel->push('flush');
+//                }
             }
 
             $io->newLine();
@@ -218,7 +219,7 @@ class StagingSyncCommand extends Command
             ],
         ];
 
-        go(function () use ($schedulerChannel, $migrators) {
+        go(function () use ($schedulerChannel, $progressBarChannel, $migrators) {
             $ran = [];
             $finished = [];
 
@@ -235,10 +236,21 @@ class StagingSyncCommand extends Command
                     }
 
                     $ran[$name] = true;
-                    go($migrator);
+                    go(function() use ($migrator, $progressBarChannel) {
+                        try {
+                            $migrator();
+                        } catch (\Throwable $exception) {
+                            dump($exception);
+                            $progressBarChannel->close();
+                        }
+                    });
                 }
 
                 $data = $schedulerChannel->pop();
+                if(false === $data) {
+                    break;
+                }
+
                 if (\is_string($data)) {
                     $finished[$data] = true;
                 }

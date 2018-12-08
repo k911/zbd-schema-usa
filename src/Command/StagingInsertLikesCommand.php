@@ -84,7 +84,12 @@ class StagingInsertLikesCommand extends Command
         });
 
         go(function () use ($entityChannel, $progressBarChannel) {
-            $this->trackLikeMigrator->migrate($entityChannel, $progressBarChannel, 1);
+            try {
+                $this->trackLikeMigrator->migrate($entityChannel, $progressBarChannel, 1);
+            } catch (\Throwable $exception) {
+                dump($exception);
+                $progressBarChannel->close();
+            }
         });
 
         go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
