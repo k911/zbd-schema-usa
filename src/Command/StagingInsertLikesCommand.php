@@ -26,10 +26,6 @@ class StagingInsertLikesCommand extends Command
      */
     private $stagingEntityManager;
     /**
-     * @var StageEntityPersister
-     */
-    private $entityPersister;
-    /**
      * @var TrackLikeMigrator
      */
     private $trackLikeMigrator;
@@ -37,13 +33,11 @@ class StagingInsertLikesCommand extends Command
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityManagerInterface $stagingEntityManager,
-        TrackLikeMigrator $trackLikeMigrator,
-        StageEntityPersister $entityPersister
+        TrackLikeMigrator $trackLikeMigrator
     )
     {
         $this->entityManager = $entityManager;
         $this->stagingEntityManager = $stagingEntityManager;
-        $this->entityPersister = $entityPersister;
         $this->trackLikeMigrator = $trackLikeMigrator;
         parent::__construct();
     }
@@ -65,7 +59,6 @@ class StagingInsertLikesCommand extends Command
 
         unset($this->entityManager, $this->stagingEntityManager);
 
-        $entityChannel = new Channel(5000);
         $progressBarChannel = new Channel(1);
 
         if (!$output instanceof ConsoleOutput) {
@@ -79,20 +72,16 @@ class StagingInsertLikesCommand extends Command
             'Inserting track likes   ..',
         ], $output);
 
-        go(function () use ($entityChannel, $io) {
-            $this->entityPersister->run($entityChannel, $io);
-        });
-
-        go(function () use ($entityChannel, $progressBarChannel) {
+        go(function () use ($progressBarChannel) {
             try {
-                $this->trackLikeMigrator->migrate($entityChannel, $progressBarChannel, 1);
+                $this->trackLikeMigrator->migrate($progressBarChannel, 1);
             } catch (\Throwable $exception) {
                 dump($exception);
                 $progressBarChannel->close();
             }
         });
 
-        go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
+        go(function () use ($progressBars, $io, $progressBarChannel) {
             $progressBarsCount = \count($progressBars);
 
             while (false !== $data = $progressBarChannel->pop()) {
@@ -121,8 +110,6 @@ class StagingInsertLikesCommand extends Command
 
             $io->newLine();
             $io->success('Processing finished.');
-
-            $entityChannel->close();
         });
     }
 

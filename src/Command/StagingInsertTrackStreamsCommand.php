@@ -26,10 +26,6 @@ class StagingInsertTrackStreamsCommand extends Command
      * @var EntityManagerInterface
      */
     private $stagingEntityManager;
-    /**
-     * @var StageEntityPersister
-     */
-    private $entityPersister;
 
     /**
      * @var TrackStreamMigrator
@@ -39,13 +35,11 @@ class StagingInsertTrackStreamsCommand extends Command
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityManagerInterface $stagingEntityManager,
-        TrackStreamMigrator $trackStreamMigrator,
-        StageEntityPersister $entityPersister
+        TrackStreamMigrator $trackStreamMigrator
     )
     {
         $this->entityManager = $entityManager;
         $this->stagingEntityManager = $stagingEntityManager;
-        $this->entityPersister = $entityPersister;
         $this->trackStreamMigrator = $trackStreamMigrator;
         parent::__construct();
     }
@@ -67,7 +61,6 @@ class StagingInsertTrackStreamsCommand extends Command
 
         unset($this->entityManager, $this->stagingEntityManager);
 
-        $entityChannel = new Channel(5000);
         $progressBarChannel = new Channel(1);
 
         if (!$output instanceof ConsoleOutput) {
@@ -81,20 +74,16 @@ class StagingInsertTrackStreamsCommand extends Command
             'Inserting track streams ..',
         ], $output);
 
-        go(function () use ($entityChannel, $io) {
-            $this->entityPersister->run($entityChannel, $io);
-        });
-
-        go(function () use ($entityChannel, $progressBarChannel) {
+        go(function () use ($progressBarChannel) {
             try {
-                $this->trackStreamMigrator->migrate($entityChannel, $progressBarChannel, 1);
+                $this->trackStreamMigrator->migrate($progressBarChannel, 1);
             } catch (\Throwable $exception) {
                 dump($exception);
                 $progressBarChannel->close();
             }
         });
 
-        go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
+        go(function () use ($progressBars, $io, $progressBarChannel) {
             $progressBarsCount = \count($progressBars);
 
             while (false !== $data = $progressBarChannel->pop()) {
@@ -123,8 +112,6 @@ class StagingInsertTrackStreamsCommand extends Command
 
             $io->newLine();
             $io->success('Processing finished.');
-
-            $entityChannel->close();
         });
     }
 

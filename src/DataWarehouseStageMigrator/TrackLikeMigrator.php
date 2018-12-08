@@ -21,17 +21,23 @@ class TrackLikeMigrator
      * @var EntityManagerInterface
      */
     private $entityManager;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $stagingEntityManager;
 
     public function __construct(
         TrackLikeFactory $trackLikeFactory,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        EntityManagerInterface $stagingEntityManager
     )
     {
         $this->trackLikeFactory = $trackLikeFactory;
         $this->entityManager = $entityManager;
+        $this->stagingEntityManager = $stagingEntityManager;
     }
 
-    public function migrate(Channel $channel, Channel $progressBarChannel, int $progressBarNo): void
+    public function migrate(Channel $progressBarChannel, int $progressBarNo): void
     {
         $count = $this->entityManager->createQuery(\sprintf('SELECT COUNT(e) as count FROM %s e', TrackLike::class))->getResult()[0]['count'];
 
@@ -42,15 +48,20 @@ class TrackLikeMigrator
         foreach ($this->getEntries($entityCollectionQuery->iterate()) as $entry) {
             $stageTrackLike = $this->trackLikeFactory->make($entry);
             $this->entityManager->detach($entry);
-            $channel->push($stageTrackLike);
             ++$counter;
+            $this->stagingEntityManager->persist($stageTrackLike);
             if ($counter % 100 === 0) {
                 $progressBarChannel->push(['inc', $progressBarNo, 100]);
-                $channel->push('flush');
+            }
+
+            if ($counter % 5000 === 0) {
+                $this->stagingEntityManager->flush();
+                $this->stagingEntityManager->clear();
             }
         }
 
-        $channel->push('flush');
+        $this->stagingEntityManager->flush();
+        $this->stagingEntityManager->clear();
         $progressBarChannel->push(['finish', $progressBarNo]);
     }
 

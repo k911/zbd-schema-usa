@@ -25,10 +25,6 @@ class StagingInsertTransactionsCommand extends Command
      * @var EntityManagerInterface
      */
     private $stagingEntityManager;
-    /**
-     * @var StageEntityPersister
-     */
-    private $entityPersister;
 
     /**
      * @var TransactionMigrator
@@ -38,13 +34,11 @@ class StagingInsertTransactionsCommand extends Command
     public function __construct(
         EntityManagerInterface $entityManager,
         EntityManagerInterface $stagingEntityManager,
-        TransactionMigrator $transactionMigrator,
-        StageEntityPersister $entityPersister
+        TransactionMigrator $transactionMigrator
     )
     {
         $this->entityManager = $entityManager;
         $this->stagingEntityManager = $stagingEntityManager;
-        $this->entityPersister = $entityPersister;
         $this->transactionMigrator = $transactionMigrator;
         parent::__construct();
     }
@@ -66,7 +60,6 @@ class StagingInsertTransactionsCommand extends Command
 
         unset($this->entityManager, $this->stagingEntityManager);
 
-        $entityChannel = new Channel(5000);
         $progressBarChannel = new Channel(1);
 
         if (!$output instanceof ConsoleOutput) {
@@ -80,20 +73,16 @@ class StagingInsertTransactionsCommand extends Command
             'Inserting transactions  ..',
         ], $output);
 
-        go(function () use ($entityChannel, $io) {
-            $this->entityPersister->run($entityChannel, $io);
-        });
-
-        go(function () use ($entityChannel, $progressBarChannel) {
+        go(function () use ($progressBarChannel) {
             try {
-                $this->transactionMigrator->migrate($entityChannel, $progressBarChannel, 1);
+                $this->transactionMigrator->migrate($progressBarChannel, 1);
             } catch (\Throwable $exception) {
                 dump($exception);
                 $progressBarChannel->close();
             }
         });
 
-        go(function () use ($progressBars, $io, $entityChannel, $progressBarChannel) {
+        go(function () use ($progressBars, $io, $progressBarChannel) {
             $progressBarsCount = \count($progressBars);
 
             while (false !== $data = $progressBarChannel->pop()) {
@@ -122,8 +111,6 @@ class StagingInsertTransactionsCommand extends Command
 
             $io->newLine();
             $io->success('Processing finished.');
-
-            $entityChannel->close();
         });
     }
 

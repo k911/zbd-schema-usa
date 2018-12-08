@@ -37,11 +37,13 @@ final class TransactionFactory
         $ip = $transaction->getCustomerIp();
         $provider = $transaction->getProvider();
         foreach ($transaction->getReleaseOrders() as $releaseOrder) {
+            $customer = $this->customerRepository->findByEmail($email);
             $upc = $releaseOrder->getMusicRelease()->getUpc();
+            $release = $this->releaseRepository->findByUpc($upc);
             $stageTransaction = new DataWarehouseStageTransaction();
-            $stageTransaction->setCustomer($this->customerRepository->findByEmail($email));
+            $stageTransaction->setCustomer($customer);
             $stageTransaction->setCustomerIp($ip);
-            $stageTransaction->setRelease($this->releaseRepository->findByUpc($upc));
+            $stageTransaction->setRelease($release);
             $stageTransaction->setPrice($releaseOrder->getPrice());
             $stageTransaction->setCurrency('USD');
             $stageTransaction->setProvider($provider);
